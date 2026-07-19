@@ -1,0 +1,21 @@
+{
+  "name": "Finanzas Compartidas",
+  "short_name": "Finanzas",
+  "description": "Finanzas compartidas para parejas",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0C0C0E",
+  "theme_color": "#5E5CE6",
+  "categories": ["finance", "lifestyle"],
+  "lang": "es-CO",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": []
+}
