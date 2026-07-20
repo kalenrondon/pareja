@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#0C0C0E">
+<meta name="theme-color" content="#0C0C0E" media="(prefers-color-scheme:dark)">
+<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme:light)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Finanzas">
 <link rel="manifest" href="/manifest.json">
 <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/icons/icon.svg">
+<link rel="apple-touch-icon" href="/icons/icon-192x192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/lucide@0.487.0" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
 <title>Finanzas Compartidas</title>
 <style>
 /* ===== DESIGN TOKENS ===== */
@@ -175,6 +175,11 @@ h3{font-size:0.9375rem;font-weight:600;line-height:1.3}
 #fab:hover{transform:scale(1.05);box-shadow:0 6px 24px rgba(94,92,230,0.5)}
 #fab:active{transform:scale(0.95)}
 #fab svg{width:24px;height:24px}
+
+/* ===== SMOOTH SCROLLING ===== */
+html{scroll-behavior:smooth}
+#main-content{-webkit-overflow-scrolling:touch}
+.tab-content{will-change:transform,opacity}
 
 /* ===== BUTTONS ===== */
 .btn{
@@ -402,6 +407,13 @@ select.input option{background:var(--surface);color:var(--text-primary)}
 .tx-item:focus-within .tx-del{opacity:1}
 .tx-del:hover{color:var(--danger);background:var(--expense-muted)}
 .tx-del svg{width:14px;height:14px}
+.btn-del{
+  width:36px;height:36px;border-radius:var(--radius-xs);
+  display:inline-flex;align-items:center;justify-content:center;
+  background:none;border:none;color:var(--text-tertiary);
+  cursor:pointer;transition:all 0.15s var(--ease);
+}
+.btn-del:hover{color:var(--danger);background:var(--expense-muted)}
 
 /* ===== DEBTS ===== */
 .debt-item{padding:14px 0;border-bottom:1px solid var(--border-light)}
@@ -613,6 +625,17 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
 .badge-warning{background:var(--warning-muted);color:var(--warning)}
 .badge-info{background:var(--info-muted);color:var(--info)}
 
+/* ===== FOCUS / KEYBOARD ===== */
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.btn:focus-visible,.nav-item:focus-visible,.input:focus-visible,.header-btn:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+
+/* ===== TOUCH TARGETS ===== */
+.tx-del{position:relative}
+.tx-del::after{content:'';position:absolute;inset:-8px;border-radius:inherit}
+.month-nav-btn{position:relative}
+.month-nav-btn::after{content:'';position:absolute;inset:-5px}
+.goal-act button,.debt-act button,.gh-btn{min-height:36px;min-width:36px}
+
 /* ===== RESPONSIVE ===== */
 @media(max-width:420px){
   .container{padding:0 12px}
@@ -674,9 +697,9 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
       </div>
     </div>
     <div class="header-right">
-      <button class="header-btn" id="theme-btn" aria-label="Cambiar tema">🌙</button>
-      <button class="header-btn" id="export-btn" aria-label="Exportar CSV">📥</button>
-      <button class="header-btn" id="settings-btn" aria-label="Configuración">⚙️</button>
+      <button type="button" class="header-btn" id="theme-btn" aria-label="Cambiar tema">🌙</button>
+      <button type="button" class="header-btn" id="export-btn" aria-label="Exportar CSV">📥</button>
+      <button type="button" class="header-btn" id="settings-btn" aria-label="Configuración">⚙️</button>
     </div>
   </div>
 </header>
@@ -689,18 +712,18 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
     <div class="tab-content active" id="tab-dashboard">
       <div class="month-filter">
         <div class="month-nav">
-          <button class="month-nav-btn" onclick="prevMonth()" aria-label="Mes anterior">◀</button>
+          <button type="button" class="month-nav-btn" onclick="prevMonth()" aria-label="Mes anterior">◀</button>
           <span class="month-label" id="month-label">—</span>
-          <button class="month-nav-btn" onclick="nextMonth()" aria-label="Mes siguiente">▶</button>
+          <button type="button" class="month-nav-btn" onclick="nextMonth()" aria-label="Mes siguiente">▶</button>
         </div>
-        <button class="month-today" onclick="goToCurrentMonth()">Hoy</button>
+        <button type="button" class="month-today" onclick="goToCurrentMonth()">Hoy</button>
       </div>
       <div class="balance-grid" id="balance-grid"></div>
       <div class="card mb-2" id="tx-form-card">
         <h3 style="margin-bottom:12px">➕ Nuevo movimiento</h3>
         <div class="toggle-group mb-1" id="tx-type-toggle-dash">
-          <button class="toggle-opt active-income" data-value="income" onclick="setTxTypeDash('income')">💰 Ingreso</button>
-          <button class="toggle-opt" data-value="expense" onclick="setTxTypeDash('expense')">💸 Gasto</button>
+          <button type="button" class="toggle-opt active-income" data-value="income" onclick="setTxTypeDash('income')">💰 Ingreso</button>
+          <button type="button" class="toggle-opt" data-value="expense" onclick="setTxTypeDash('expense')">💸 Gasto</button>
         </div>
         <div class="row-inline" style="display:flex;gap:10px">
           <div class="field" style="flex:1">
@@ -721,7 +744,7 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
           <label class="field-label">Nota <span class="caption">(opcional)</span></label>
           <textarea class="input" id="tx-note-dash" rows="2" placeholder="¿Para qué fue?"></textarea>
         </div>
-        <button class="btn btn-primary btn-full" onclick="addTransactionDash()">
+        <button type="button" class="btn btn-primary btn-full" onclick="addTransactionDash()">
           💳 Agregar movimiento
         </button>
       </div>
@@ -747,8 +770,8 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
       <div class="card mb-2" id="tx-form-card">
         <h3 style="margin-bottom:12px">Nuevo movimiento</h3>
         <div class="toggle-group mb-1" id="tx-type-toggle">
-          <button class="toggle-opt active-income" data-value="income" onclick="setTxType('income')">💰 Ingreso</button>
-          <button class="toggle-opt" data-value="expense" onclick="setTxType('expense')">💸 Gasto</button>
+          <button type="button" class="toggle-opt active-income" data-value="income" onclick="setTxType('income')">💰 Ingreso</button>
+          <button type="button" class="toggle-opt" data-value="expense" onclick="setTxType('expense')">💸 Gasto</button>
         </div>
         <div class="row-inline" style="display:flex;gap:10px">
           <div class="field" style="flex:1">
@@ -769,7 +792,7 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
           <label class="field-label">Nota <span class="caption">(opcional)</span></label>
           <textarea class="input" id="tx-note" rows="2" placeholder="¿Para qué fue?"></textarea>
         </div>
-        <button class="btn btn-primary btn-full" onclick="addTransaction()">
+        <button type="button" class="btn btn-primary btn-full" onclick="addTransaction()">
           💳 Agregar movimiento
         </button>
       </div>
@@ -790,7 +813,7 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
         <div style="display:flex;gap:8px">
           <input class="input" type="text" id="debt-name" placeholder="Nombre" style="flex:2">
             <input class="input num-input" type="text" id="debt-total" placeholder="Total $" inputmode="numeric" style="flex:1">
-          <button class="btn btn-primary btn-sm" onclick="addDebt()">➕</button>
+          <button type="button" class="btn btn-primary btn-sm" onclick="addDebt()">➕</button>
         </div>
       </div>
     </div>
@@ -814,7 +837,7 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
               <div class="si-sub" id="settings-names-sub">Sin configurar</div>
             </div>
           </div>
-          <button class="btn btn-ghost btn-sm" onclick="openSettings()">Editar</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="openSettings()">Editar</button>
         </div>
         <div class="settings-item">
           <div class="si-left">
@@ -824,7 +847,7 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
               <div class="si-sub">Alternar tema</div>
             </div>
           </div>
-          <button class="switch" id="dark-switch" onclick="toggleTheme()" role="switch" aria-checked="false">
+          <button type="button" class="switch" id="dark-switch" onclick="toggleTheme()" role="switch" aria-checked="false">
             <span class="switch-knob"></span>
           </button>
         </div>
@@ -846,7 +869,7 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
               <div class="si-sub">Descargar historial completo</div>
             </div>
           </div>
-          <button class="btn btn-ghost btn-sm" onclick="exportCSV()">Descargar</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="exportCSV()">Descargar</button>
         </div>
         <div class="settings-item">
           <div class="si-left">
@@ -856,7 +879,7 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
               <div class="si-sub">Eliminar toda la información</div>
             </div>
           </div>
-          <button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="resetAll()">Reiniciar</button>
+          <button type="button" class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="resetAll()">Reiniciar</button>
         </div>
       </div>
     </div>
@@ -865,31 +888,31 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
 </main>
 
 <!-- Bottom Navigation -->
-<nav id="bottom-nav" class="hidden">
-  <button class="nav-item active" data-tab="dashboard" onclick="navigate('dashboard')" aria-label="Dashboard">
+<nav id="bottom-nav" class="hidden" role="tablist">
+  <button type="button" class="nav-item active" data-tab="dashboard" onclick="navigate('dashboard')" role="tab" aria-selected="true" aria-label="Dashboard">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
     <span>Inicio</span>
   </button>
-  <button class="nav-item" data-tab="transactions" onclick="navigate('transactions')" aria-label="Movimientos">
+  <button type="button" class="nav-item" data-tab="transactions" onclick="navigate('transactions')" role="tab" aria-selected="false" aria-label="Movimientos">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
     <span>Movimientos</span>
   </button>
-  <button class="nav-item" data-tab="debts" onclick="navigate('debts')" aria-label="Deudas">
+  <button type="button" class="nav-item" data-tab="debts" onclick="navigate('debts')" role="tab" aria-selected="false" aria-label="Deudas">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
     <span>Deudas</span>
   </button>
-  <button class="nav-item" data-tab="goals" onclick="navigate('goals')" aria-label="Metas">
+  <button type="button" class="nav-item" data-tab="goals" onclick="navigate('goals')" role="tab" aria-selected="false" aria-label="Metas">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
     <span>Metas</span>
   </button>
-  <button class="nav-item" data-tab="settings" onclick="navigate('settings')" aria-label="Ajustes">
+  <button type="button" class="nav-item" data-tab="settings" onclick="navigate('settings')" role="tab" aria-selected="false" aria-label="Ajustes">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
     <span>Ajustes</span>
   </button>
 </nav>
 
 <!-- FAB -->
-<button id="fab" class="hidden" onclick="openTxSheet()" aria-label="Agregar movimiento">
+<button type="button" id="fab" class="hidden" onclick="openTxSheet()" aria-label="Agregar movimiento">
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
 </button>
 
@@ -899,8 +922,8 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
   <div class="sheet-handle"></div>
   <h2>Nuevo movimiento</h2>
   <div class="toggle-group mb-1" id="tx-sheet-toggle">
-    <button class="toggle-opt active-income" data-value="income" onclick="setTxTypeSheet('income')">💰 Ingreso</button>
-    <button class="toggle-opt" data-value="expense" onclick="setTxTypeSheet('expense')">💸 Gasto</button>
+    <button type="button" class="toggle-opt active-income" data-value="income" onclick="setTxTypeSheet('income')">💰 Ingreso</button>
+    <button type="button" class="toggle-opt" data-value="expense" onclick="setTxTypeSheet('expense')">💸 Gasto</button>
   </div>
   <div style="display:flex;gap:10px">
     <div class="field" style="flex:1">
@@ -921,7 +944,7 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
     <label class="field-label">Nota <span class="caption">(opcional)</span></label>
     <textarea class="input" id="tx-note-sheet" rows="2" placeholder="¿Para qué fue?"></textarea>
   </div>
-  <button class="btn btn-primary btn-full" onclick="addTransactionSheet()">
+  <button type="button" class="btn btn-primary btn-full" onclick="addTransactionSheet()">
     💳 Agregar movimiento
   </button>
 </div>
@@ -943,10 +966,10 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
       <label class="field-label">Día límite para aportar a metas</label>
       <input class="input" type="number" id="settings-deadline" min="1" max="28" value="15">
     </div>
-    <button class="btn btn-primary btn-full" onclick="saveNames()">Guardar</button>
+    <button type="button" class="btn btn-primary btn-full" onclick="saveNames()">Guardar</button>
     <div style="display:flex;gap:8px;margin-top:12px">
-      <button class="btn btn-secondary" style="flex:1" onclick="closeSettings()">Cancelar</button>
-      <button class="btn btn-ghost" style="flex:1;color:var(--danger)" onclick="resetAll()">Reiniciar</button>
+      <button type="button" class="btn btn-secondary" style="flex:1" onclick="closeSettings()">Cancelar</button>
+      <button type="button" class="btn btn-ghost" style="flex:1;color:var(--danger)" onclick="resetAll()">Reiniciar</button>
     </div>
   </div>
 </div>
@@ -958,7 +981,7 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
     <div class="modal-desc" id="gh-title"></div>
     <div id="gh-list"></div>
     <div class="mt-2 text-center">
-      <button class="btn btn-secondary" onclick="closeGH()">Cerrar</button>
+      <button type="button" class="btn btn-secondary" onclick="closeGH()">Cerrar</button>
     </div>
   </div>
 </div>
@@ -968,8 +991,8 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
   <div class="confirm-box">
     <p id="confirm-msg">¿Está seguro?</p>
     <div class="row">
-      <button class="btn btn-secondary" style="flex:1" onclick="closeConfirm()">Cancelar</button>
-      <button class="btn btn-danger" style="flex:1" id="confirm-btn">Eliminar</button>
+      <button type="button" class="btn btn-secondary" style="flex:1" onclick="closeConfirm()">Cancelar</button>
+      <button type="button" class="btn btn-danger" style="flex:1" id="confirm-btn">Eliminar</button>
     </div>
   </div>
 </div>
@@ -1019,7 +1042,7 @@ function rawVal(el){return parseInt((el.value||'').replace(/\./g,''))||0}
 function fmtInput(el){
   if(!el || el.value==='')return;
   const raw=el.value.replace(/[^0-9]/g,''); if(raw===''){el.value='';return}
-  const start=el.selectionStart,end=el.selectionEnd,oldLen=el.value.length;
+  const start=el.selectionStart,oldLen=el.value.length;
   const fmt=parseInt(raw).toLocaleString('es-CO');
   el.value=fmt; el.dataset.raw=raw;
   const diff=fmt.length-oldLen; const np=Math.min(start+diff,fmt.length);
@@ -1035,7 +1058,7 @@ const API_DEFAULTS = {
 const SB_URL = 'https://oqvkrbmufinvakvltxbm.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9xdnJrYm11ZmludmFrdmx0eGJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1MTQxMDQsImV4cCI6MjEwMDA5MDEwNH0.RTaZedeezN_9HlhVuE9Puwt6H1lF1NqpafZIhDMtLCI';
 let supabaseClient = null;
-try { if (window.supabase) supabaseClient = supabase.createClient(SB_URL, SB_KEY); } catch(e) {}
+try { if (typeof supabase !== 'undefined') supabaseClient = supabase.createClient(SB_URL, SB_KEY); } catch(e) {}
 
 async function fetchData(){
   async function fromAPI(){
@@ -1114,7 +1137,11 @@ function navigate(tab){
   curTab=tab;
   document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active',el.dataset.tab===tab));
+  document.querySelectorAll('.nav-item').forEach(el=>{
+    const act=el.dataset.tab===tab;
+    el.classList.toggle('active',act);
+    el.setAttribute('aria-selected',act);
+  });
   document.getElementById('header-title').textContent=TAB_NAMES[tab]||tab;
   if(tab==='dashboard'){document.getElementById('header-sub').textContent='Resumen del mes'}
   else{document.getElementById('header-sub').textContent=''}
@@ -1197,7 +1224,8 @@ function renderCatDash(){
 }
 function updateHint(){
   const s=document.getElementById('tx-category'),h=document.getElementById('budget-hint');
-  if(txType!=='expense'){h.style.display='none';return}
+  const isExp=txType==='expense';
+  if(!isExp||!s){h.style.display='none';return}
   const cat=s.value,buds=getBuds(),lim=buds[cat];if(!lim){h.style.display='none';return}
   const sp=expByC(selYear,selMonth)[cat]||0,pct=lim>0?(sp/lim)*100:0;
   h.style.display='block';
@@ -1207,7 +1235,8 @@ function updateHint(){
 }
 function updateHintSheet(){
   const s=document.getElementById('tx-category-sheet'),h=document.getElementById('budget-hint-sheet');
-  if(txTypeSheet!=='expense'){h.style.display='none';return}
+  const isExp=txTypeSheet==='expense';
+  if(!isExp||!s){h.style.display='none';return}
   const cat=s.value,buds=getBuds(),lim=buds[cat];if(!lim){h.style.display='none';return}
   const sp=expByC(selYear,selMonth)[cat]||0,pct=lim>0?(sp/lim)*100:0;
   h.style.display='block';
@@ -1217,7 +1246,8 @@ function updateHintSheet(){
 }
 function updateHintDash(){
   const s=document.getElementById('tx-category-dash'),h=document.getElementById('budget-hint-dash');
-  if(txType!=='expense'){h.style.display='none';return}
+  const isExp=txType==='expense';
+  if(!isExp||!s){h.style.display='none';return}
   const cat=s.value,buds=getBuds(),lim=buds[cat];if(!lim){h.style.display='none';return}
   const sp=expByC(selYear,selMonth)[cat]||0,pct=lim>0?(sp/lim)*100:0;
   h.style.display='block';
@@ -1242,7 +1272,7 @@ function renderTxs(){
         ${note}
       </div>
       <div class="tx-amount ${tx.type}">${inc?'+':'-'}${fmt(tx.amount)}</div>
-      <button class="tx-del" onclick="confirmDelTx('${tx.id}')" aria-label="Eliminar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <button type="button" class="tx-del" onclick="confirmDelTx('${tx.id}')" aria-label="Eliminar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>`
   }).join('');
   if(t.length>LIM)list.innerHTML+=`<div class="caption text-center mt-1">+${t.length-LIM} más (cambie de mes)</div>`
@@ -1259,11 +1289,11 @@ function renderDebts(){
       </div>
       <div class="debt-bar"><div class="fill${paid?' done':''}" style="width:${pct}%"></div></div>
       <div class="debt-meta"><span>Pagado: <strong>${fmt(d.paid)}</strong></span><span>Total: <strong>${fmt(d.total)}</strong></span></div>
-      ${paid?`<div style="text-align:right"><button class="btn btn-ghost btn-xs" onclick="confirmDelDebt('${d.id}')">🗑️ Eliminar</button></div>`
+      ${paid?`<div style="text-align:right"><button type="button" class="btn btn-ghost btn-xs" onclick="confirmDelDebt('${d.id}')">🗑️ Eliminar</button></div>`
         :`<div class="debt-act">
             <input class="num-input" type="text" id="debt-pay-${d.id}" placeholder="Abonar" inputmode="numeric">
-            <button class="btn btn-primary btn-xs" onclick="payDebt('${d.id}')">Abonar</button>
-            <button class="btn-del" onclick="confirmDelDebt('${d.id}')" aria-label="Eliminar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            <button type="button" class="btn btn-primary btn-xs" onclick="payDebt('${d.id}')">Abonar</button>
+            <button type="button" class="btn-del" onclick="confirmDelDebt('${d.id}')" aria-label="Eliminar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
           </div>`}
     </div>`
   }).join('')
@@ -1290,48 +1320,52 @@ function renderGoals(){
       <div class="goal-nums"><span>Ahorrado: <strong>${fmt(goal.saved)}</strong></span><span>Meta: <strong>${fmt(goal.target)}</strong></span></div>
       <div class="goal-nums">
         <span><span class="caption">Meta: </span><input class="goal-target-inp num-input" type="text" id="goal-target-${goal.id}" value="${goal.target}" inputmode="numeric" onchange="updGoalT(${goal.id})"></span>
-        <span>${pct.toFixed(0)}% <button class="gh-btn" onclick="showGH(${goal.id})">📊</button></span>
+        <span>${pct.toFixed(0)}% <button type="button" class="gh-btn" onclick="showGH(${goal.id})">📊</button></span>
       </div>
       <div class="goal-act">
         <input class="num-input" type="text" id="goal-add-${goal.id}" placeholder="$ Aportar" inputmode="numeric">
-        <button class="btn btn-primary btn-xs" onclick="contGoal(${goal.id})">Aportar</button>
+        <button type="button" class="btn btn-primary btn-xs" onclick="contGoal(${goal.id})">Aportar</button>
       </div>
     </div>`
   }).join('')
 }
 function renderChart(){
   const c=document.getElementById('chart-container'),cats=expByC(selYear,selMonth),e=Object.entries(cats).filter(([,v])=>v>0);
-  if(!e.length){c.innerHTML='<div class="empty" style="padding:16px"><div class="empty-desc">Sin gastos este mes</div></div>';return}
-  const tot=e.reduce((s,[,v])=>s+v,0);
-  c.innerHTML='<div class="chart-wrap"><canvas id="expense-chart" width="200" height="200"></canvas><div class="chart-legend">'+e.map(([cat,val],i)=>`<span class="item"><span class="dot" style="background:${COLORS[i%COLORS.length]}"></span>${esc(cat)} ${fmt(val)} (${((val/tot)*100).toFixed(0)}%)</span>`).join('')+'</div></div>';
+  if(!e.length){c.innerHTML='<div class="empty" style="padding:16px"><div class="empty-icon">📊</div><div class="empty-title">Sin gastos</div><div class="empty-desc">No hay gastos registrados este mes</div></div>';return}
+  const tot=e.reduce((s,[,v])=>s+v,0),dpr=window.devicePixelRatio||1,sz=200;
+  c.innerHTML=`<div class="chart-wrap"><canvas id="expense-chart" width="${sz*dpr}" height="${sz*dpr}" style="width:${sz}px;height:${sz}px"></canvas><div class="chart-legend">`+e.map(([cat,val],i)=>`<span class="item"><span class="dot" style="background:${COLORS[i%COLORS.length]}"></span>${esc(cat)} ${fmt(val)} (${((val/tot)*100).toFixed(0)}%)</span>`).join('')+'</div></div>';
   drawPie(e,tot)
 }
 function drawPie(e,tot){
   const cv=document.getElementById('expense-chart');if(!cv)return;
   const ctx=cv.getContext('2d'),w=cv.width,h=cv.height,cx=w/2,cy=h/2,r=Math.min(w,h)/2-5;
   ctx.clearRect(0,0,w,h);if(!e.length)return;
+  const dpr=window.devicePixelRatio||1;
+  ctx.scale(1/dpr,1/dpr); ctx.restore=function(){ctx.setTransform(1,0,0,1,0,0)};
+  ctx.save();
   let start=-Math.PI/2;
   e.forEach(([,val],i)=>{const sl=(val/tot)*Math.PI*2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,start,start+sl);ctx.closePath();ctx.fillStyle=COLORS[i%COLORS.length];ctx.fill();ctx.strokeStyle=document.body.classList.contains('light')?'#FFFFFF':'#1C1C1E';ctx.lineWidth=2;ctx.stroke();start+=sl});
   ctx.beginPath();ctx.arc(cx,cy,r*0.45,0,Math.PI*2);
   ctx.fillStyle=document.body.classList.contains('light')?'#FFFFFF':'#1C1C1E';ctx.fill();
   ctx.fillStyle=document.body.classList.contains('light')?'#1C1C1E':'#F5F5F7';
-  ctx.font='bold 13px Inter,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.font='bold '+Math.round(13*dpr)+'px Inter,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
   ctx.fillText(fmt(tot),cx,cy);
+  ctx.restore();
 }
 
 // ===== ACTIONS =====
 function setTxType(t){txType=t;document.querySelectorAll('#tx-type-toggle .toggle-opt').forEach(el=>{el.className='toggle-opt'+(el.dataset.value===t?(t==='income'?' active-income':' active-expense'):'')});renderCat()}
 function setTxTypeSheet(t){txTypeSheet=t;document.querySelectorAll('#tx-sheet-toggle .toggle-opt').forEach(el=>{el.className='toggle-opt'+(el.dataset.value===t?(t==='income'?' active-income':' active-expense'):'')});renderCatSheet()}
 function setTxTypeDash(t){txType=t;document.querySelectorAll('#tx-type-toggle-dash .toggle-opt').forEach(el=>{el.className='toggle-opt'+(el.dataset.value===t?(t==='income'?' active-income':' active-expense'):'')});renderCatDash()}
-async function addTxCommon(amount,who,cat,note){
+async function addTxCommon(amount,who,cat,note,t){
   if(!amount||amount<=0){showToast('Ingrese un monto válido','error');return false}
   if(!data.names||!data.names.person1||!data.names.person2){showToast('Configure los nombres','error');return false}
-  const tx={id:uid(),type:txType,amount,who,category:cat,note,date:new Date().toISOString().split('T')[0]};
+  const tx={id:uid(),type:t||txType,amount,who,category:cat,note,date:new Date().toISOString().split('T')[0]};
   data.transactions.push(tx);
   const ok=await saveData();
   if(ok){
     renderAll();
-    if(txType==='expense'){
+    if((t||txType)==='expense'){
       const buds=getBuds(),lim=buds[cat];
       if(lim){const sp=expByC(selYear,selMonth)[cat]||0,pct=(sp/lim)*100;if(pct>=100)showToast(`⚠️ Presupuesto de ${cat} excedido`,'error');else if(pct>=80)showToast(`⚠️ ${cat} al ${pct.toFixed(0)}% del presupuesto`,'warning')}
     }
@@ -1345,7 +1379,7 @@ async function addTransaction(){
 }
 async function addTransactionSheet(){
   const a=rawVal(document.getElementById('tx-amount-sheet')),w=document.getElementById('tx-who-sheet').value,c=document.getElementById('tx-category-sheet').value,n=document.getElementById('tx-note-sheet').value.trim();
-  const ok=await addTxCommon(a,w,c,n);
+  const ok=await addTxCommon(a,w,c,n,txTypeSheet);
   if(ok){document.getElementById('tx-amount-sheet').value='';document.getElementById('tx-note-sheet').value='';closeTxSheet();showToast('Movimiento agregado ✅','success')}
 }
 async function addTransactionDash(){
@@ -1408,7 +1442,9 @@ async function saveNames(){
 async function saveDeadline(){
   const v=parseInt((document.getElementById('settings-deadline-inp').value||'').replace(/\./g,''))||15;
   if(!data.settings)data.settings={};data.settings.goalDeadlineDay=Math.min(28,Math.max(1,v));
-  await saveData()
+  const ok=await saveData();
+  if(ok)showToast('Día límite actualizado','success');
+  else showToast('Error al guardar','error');
 }
 async function resetAll(){
   showConfirm('¿Reiniciar todos los datos?',async()=>{
@@ -1417,7 +1453,7 @@ async function resetAll(){
       const ok = await saveData();
       if (ok) {
         const d=new Date();selMonth=d.getMonth();selYear=d.getFullYear();
-        applyTheme();renderAll();closeSettings();showToast('Datos reiniciados','success');
+        applyTheme();closeSettings();renderAll();showToast('Datos reiniciados','success');
       } else throw Error();
     } catch(e){showToast('Error','error')}
   })
@@ -1429,19 +1465,20 @@ function nextMonth(){const now=new Date(),nxt=new Date(selYear,selMonth+1,1);if(
 function goToCurrentMonth(){const d=new Date();selMonth=d.getMonth();selYear=d.getFullYear();renderAll()}
 
 // ===== THEME =====
-function toggleTheme(){
+async function toggleTheme(){
   const b=document.body;b.classList.toggle('light');
   const is=b.classList.contains('light');
   if(!data.settings)data.settings={};data.settings.darkMode=!is;
   document.getElementById('theme-btn').textContent=is?'🌙':'☀️';
   document.querySelector('#dark-switch').classList.toggle('on',!is);
   document.querySelector('#dark-switch').setAttribute('aria-checked',!is);
-  saveData();setTimeout(renderChart,100)
+  await saveData();renderChart();
 }
 function applyTheme(){
   const dark=data&&data.settings&&data.settings.darkMode;
   const b=document.body;b.classList.toggle('light',!dark);
   document.getElementById('theme-btn').textContent=dark?'☀️':'🌙';
+  document.querySelector('meta[name="theme-color"]').setAttribute('content',dark?'#0C0C0E':'#F2F2F7');
   const sw=document.querySelector('#dark-switch');
   if(sw){sw.classList.toggle('on',dark);sw.setAttribute('aria-checked',dark)}
 }
@@ -1519,7 +1556,8 @@ document.addEventListener('click',function(e){
 let pollTimer=null;
 async function poll(){
   const sd=await fetchData();if(!sd)return;
-  if(JSON.stringify(data)!==JSON.stringify(sd)){
+  const cur=JSON.stringify(data);
+  if(JSON.stringify(sd)!==cur){
     data=sd;if(data.settings&&data.settings.darkMode!==undefined)applyTheme();
     renderAll();checkConfig()
   }
@@ -1544,7 +1582,7 @@ document.addEventListener('input',function(e){
 // ===== INIT =====
 async function init(){
   data=await fetchData();
-  if(!data){document.getElementById('loading-screen').innerHTML='<div class="logo" style="background:var(--expense)">✕</div><p>Error de conexión</p>';return}
+  if(!data){document.getElementById('loading-screen').innerHTML='<div class="logo" style="background:var(--expense)">✕</div><p style="margin-bottom:12px">Error de conexión</p><button type="button" class="btn btn-primary" onclick="location.reload()">Reintentar</button>';return}
   document.getElementById('loading-screen').classList.add('hidden');
   document.getElementById('app-header').classList.remove('hidden');
   document.getElementById('main-content').classList.remove('hidden');
