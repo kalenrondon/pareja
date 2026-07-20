@@ -308,6 +308,31 @@ body.light .jar-body{background:rgba(0,0,0,0.03)}
 .empty-title{font-size:0.8125rem;font-weight:600;margin-bottom:2px}
 .empty-desc{font-size:0.7rem;color:var(--text-tertiary)}
 
+/* WELLNESS */
+.well-inp-row{display:flex;gap:8px;align-items:center;margin:8px 0 12px}
+.well-inp-row input{flex:1;max-width:120px;padding:8px 10px;border:1px solid var(--border-light);border-radius:var(--radius-sm);font-size:0.8125rem;background:var(--bg);color:var(--text-primary);font-family:var(--font)}
+.well-inp-row input:focus{border-color:var(--primary);outline:none}
+.well-inp-row button{padding:8px 14px;border:none;border-radius:var(--radius-sm);font-size:0.75rem;font-weight:600;font-family:var(--font);cursor:pointer;background:var(--primary);color:white;transition:all 0.15s var(--ease)}
+.well-inp-row button:active{transform:scale(0.96)}
+.well-stat{font-size:0.65rem;color:var(--text-tertiary);margin-bottom:4px}
+.well-done{display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:var(--radius-md);background:var(--income-muted);color:var(--income);font-size:0.75rem;font-weight:600;margin:8px 0}
+.well-chart{display:flex;gap:4px;align-items:flex-end;margin:8px 0;min-height:40px;overflow-x:auto;padding-bottom:4px}
+.well-bar{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:24px}
+.well-bar-fill{width:18px;border-radius:3px 3px 0 0;background:var(--primary);transition:height 0.4s var(--ease);min-height:2px}
+.well-bar-label{font-size:0.5rem;color:var(--text-tertiary);white-space:nowrap;writing-mode:vertical-lr;text-orientation:mixed}
+.well-empty{font-size:0.7rem;color:var(--text-tertiary);padding:12px 0;text-align:center}
+.ex-row{display:flex;gap:6px;margin:8px 0}
+.ex-btn{flex:1;padding:10px 6px;border:none;border-radius:var(--radius-md);background:var(--bg-card);border:1px solid var(--border-light);font-family:var(--font);cursor:pointer;text-align:center;transition:all 0.15s var(--ease)}
+.ex-btn:active{transform:scale(0.96)}
+.ex-btn .ex-emoji{font-size:1.3rem;display:block;margin-bottom:2px}
+.ex-btn .ex-name{font-size:0.7rem;font-weight:600;color:var(--text-primary)}
+.ex-btn .ex-xp{font-size:0.6rem;color:var(--xp)}
+.ex-btn.done{opacity:0.5;border-color:var(--income-muted)}
+.ex-btn.done .ex-name{color:var(--income)}
+.ex-btn.done::after{content:' ✅';font-size:0.6rem}
+.ex-summary{font-size:0.7rem;color:var(--text-tertiary);padding:4px 0;display:flex;gap:12px;flex-wrap:wrap}
+.ex-summary span{display:flex;align-items:center;gap:3px}
+
 /* RESPONSIVE */
 @media(max-width:400px){
   .goals-grid{grid-template-columns:1fr}
@@ -532,6 +557,18 @@ body.widget-mode .warmth-area{display:none}
       </div>
     </div>
 
+    <!-- TAB: Wellness -->
+    <div class="tab-content" id="tab-wellness">
+      <div class="card">
+        <div class="card-title">⚖️ Control de peso</div>
+        <div id="weight-section"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🏃 Actividad física</div>
+        <div id="exercise-section"></div>
+      </div>
+    </div>
+
     <!-- TAB: Settings -->
     <div class="tab-content" id="tab-settings">
       <div class="set-list">
@@ -624,7 +661,7 @@ const CATEGORIES = {
 };
 const CAT_ICONS = {salario:'💼',ventas:'📦',extra:'🎲',regalo:'🎁',otro:'📌',comida:'🍽️',transporte:'🚌',servicios:'💡',salud:'🏥',entretenimiento:'🎬',deuda:'📄'};
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-const TAB_NAMES = {pet:'Mascota',dashboard:'Inicio',tx:'Movimientos',goals:'Metas',achievements:'Logros',settings:'Ajustes'};
+const TAB_NAMES = {pet:'Mascota',dashboard:'Inicio',tx:'Movimientos',goals:'Metas',achievements:'Logros',wellness:'Bienestar',settings:'Ajustes'};
 const PET_SHOP = [
   {id:'dog',name:'Perro',emoji:'🐶',threshold:50000,desc:'Fiel compañero'},
   {id:'bunny',name:'Conejo',emoji:'🐰',threshold:200000,desc:'Salta que te salta'},
@@ -632,7 +669,7 @@ const PET_SHOP = [
   {id:'fox',name:'Zorro',emoji:'🦊',threshold:1500000,desc:'Astuto y veloz'},
   {id:'dragon',name:'Dragón',emoji:'🐉',threshold:3000000,desc:'Poder legendario'}
 ];
-const DEFAULTS = {names:{person1:'',person2:''},transactions:[],debts:[],goals:[],budgets:{},settings:{darkMode:false,goalDeadlineDay:15,petType:'dragon',petName:'Nexo'},xp:0,streak:0,lastCheckin:null,xpLog:[],warmth:0,collectedPets:[],achievements:{}};
+const DEFAULTS = {names:{person1:'',person2:''},transactions:[],debts:[],goals:[],budgets:{},settings:{darkMode:false,goalDeadlineDay:15,petType:'dragon',petName:'Nexo'},xp:0,streak:0,lastCheckin:null,xpLog:[],warmth:0,collectedPets:[],achievements:{},weightLog:[],exerciseLog:[]};
 const ACHIEVEMENTS = [
   {id:'first_tx',name:'Primer paso',desc:'Agreguen su primer movimiento',icon:'💳',reward:10,check:d=>(d.transactions||[]).length>=1},
   {id:'tx_50',name:'Movidos',desc:'50 movimientos registrados',icon:'📊',reward:15,check:d=>(d.transactions||[]).length>=50},
@@ -648,6 +685,14 @@ const ACHIEVEMENTS = [
   {id:'names_set',name:'Pareja',desc:'Configuren ambos nombres',icon:'💕',reward:10,check:d=>d.settings&&d.settings.name1&&d.settings.name2},
   {id:'budget_hero',name:'Presupuestadores',desc:'Un mes sin exceder presupuestos',icon:'🛡️',reward:40,check:a=>false},
   {id:'hatch_egg',name:'Nacimiento',desc:'El huevo eclosionó',icon:'🐣',reward:20,check:d=>d.xp>=80},
+  {id:'first_weight',name:'Primer paso',desc:'Registren su peso por primera vez',icon:'⚖️',reward:10,check:d=>(d.weightLog||[]).length>=1},
+  {id:'weight_4',name:'Constantes',desc:'4 semanas seguidas registrando peso',icon:'📊',reward:25,check:d=>{
+    const w=d.weightLog||[];if(w.length<4)return false;
+    const keys=w.map(e=>e.week).sort();let streak=1;
+    for(let i=1;i<keys.length;i++){const a=parseInt(keys[i].split('-W')[1]),b=parseInt(keys[i-1].split('-W')[1]);if(a===b+1)streak++;else streak=1;if(streak>=4)return true}
+    return false;
+  }},
+  {id:'exercise_10',name:'Activos',desc:'10 sesiones de ejercicio',icon:'🏃',reward:30,check:d=>(d.exerciseLog||[]).length>=10},
 ];
 const PET_MSGS = [
   '✨ ¡Ahorrar es el primer paso a la libertad!',
@@ -662,6 +707,11 @@ const PET_MSGS = [
   '🌈 Después de la lluvia llega la calma',
   '🏆 El éxito es la suma de pequeños esfuerzos',
   '💕 Lo importante no es la meta, es quien camina a tu lado',
+];
+const EXERCISE_TYPES = [
+  {id:'walk',name:'Caminata',emoji:'🚶',xp:5},
+  {id:'run',name:'Correr',emoji:'🏃',xp:10},
+  {id:'gym',name:'Gimnasio',emoji:'💪',xp:8}
 ];
 
 // ===== STATE =====
@@ -748,7 +798,7 @@ function mergeData(d){
   if(!d.settings.petName)d.settings.petName='Nexo';
   if(!d.names)d.names={person1:'',person2:''};
   if(!d.warmth)d.warmth=0;if(!d.collectedPets)d.collectedPets=[];
-  if(!d.achievements)d.achievements={};
+  if(!d.achievements)d.achievements={};if(!d.weightLog)d.weightLog=[];if(!d.exerciseLog)d.exerciseLog=[];
   return d;
 }
 async function saveData(){
@@ -910,7 +960,7 @@ function navigate(tab){
 // ===== RENDER =====
 function renderAll(){
   if(!data)return;
-  renderPet();renderDashboard();renderTxs();renderGoals();renderSettings();renderAchievements();renderDrawer();updateHeader();updatePetMsg();
+  renderPet();renderDashboard();renderTxs();renderGoals();renderSettings();renderAchievements();renderWellness();renderDrawer();updateHeader();updatePetMsg();
 }
 function updateHeader(){
   const s=getStage(data.xp);
@@ -1075,6 +1125,7 @@ function renderDrawer(){
     {icon:'💳',label:'Movimientos',tab:'tx'},
     {icon:'🎯',label:'Metas',tab:'goals'},
     {icon:'🎖️',label:'Logros',tab:'achievements'},
+    {icon:'❤️',label:'Bienestar',tab:'wellness'},
     null,
     {icon:'🏆',label:'Etapas',fn:'openStages()'},
     {icon:'🌙',label:'Tema oscuro',fn:'toggleTheme()'},
@@ -1177,6 +1228,97 @@ function toggleWidget(){
   document.body.classList.toggle('widget-mode');
   showToast(document.body.classList.contains('widget-mode')?'📱 Modo widget activado':'📱 Modo normal','success');
   renderAll();
+}
+
+// ===== WELLNESS =====
+function getWeekKey(d){
+  const dt=d?new Date(d+'T12:00:00'):new Date();
+  const y=dt.getFullYear();
+  const jan1=new Date(y,0,1);
+  const days=Math.floor((dt-jan1)/86400000);
+  const w=Math.ceil((days+jan1.getDay()+1)/7);
+  return y+'-W'+String(w).padStart(2,'0');
+}
+function renderWellness(){
+  const wk=getWeekKey();
+  renderWeight(wk);
+  renderExercise(wk);
+}
+function renderWeight(wk){
+  const log=data.weightLog||[];
+  const entry=log.find(e=>e.week===wk);
+  const sec=document.getElementById('weight-section');
+  if(entry){
+    sec.innerHTML='<div class="well-done">✅ Registrado: <strong>'+entry.weight+' kg</strong> esta semana</div>';
+  }else{
+    sec.innerHTML=
+      '<div class="well-stat">📅 Semana '+(wk.split('-W')[1])+' — ¿Cuánto pesan esta semana?</div>'+
+      '<div class="well-inp-row"><input type="number" step="0.1" id="weight-inp" placeholder="kg (ej: 68.5)" style="flex:1"><button onclick="logWeight(\''+wk+'\')">Guardar</button></div>';
+  }
+  // History chart
+  const recent=log.slice(-10);
+  if(recent.length){
+    const max=Math.max(...recent.map(e=>e.weight));
+    const min=Math.min(...recent.map(e=>e.weight));
+    const rng=max-min||1;
+    sec.innerHTML+='<div style="font-size:0.65rem;color:var(--text-tertiary);margin:6px 0 2px">Historial</div><div class="well-chart">'+
+      recent.map(e=>{
+        const h=((e.weight-min)/rng)*50+10;
+        return'<div class="well-bar"><div class="well-bar-fill" style="height:'+h+'px"></div><div class="well-bar-label">'+e.weight.toFixed(1)+'</div></div>'
+      }).join('')+'</div>';
+  }
+}
+function renderExercise(wk){
+  const log=data.exerciseLog||[];
+  const todayStr=today();
+  const doneToday=log.filter(e=>e.date===todayStr);
+  const types=EXERCISE_TYPES;
+  const sec=document.getElementById('exercise-section');
+  sec.innerHTML='<div class="ex-row">'+
+    types.map(t=>{
+      const done=doneToday.some(e=>e.type===t.id);
+      return'<button type="button" class="ex-btn'+(done?' done':'')+'"'+(done?' disabled':' onclick="logExercise(\''+t.id+'\',\''+wk+'\')"')+'>'+
+        '<span class="ex-emoji">'+t.emoji+'</span><span class="ex-name">'+t.name+'</span><span class="ex-xp">+'+t.xp+' XP</span></button>'
+    }).join('')+'</div>';
+  // This week summary
+  const weekLog=log.filter(e=>e.week===wk);
+  if(weekLog.length){
+    const totalXp=weekLog.reduce((s,e)=>s+EXERCISE_TYPES.find(t=>t.id===e.type)?.xp||0,0);
+    const byType={};
+    weekLog.forEach(e=>{byType[e.type]=(byType[e.type]||0)+1});
+    sec.innerHTML+='<div class="ex-summary">'+
+      Object.entries(byType).map(([id,cnt])=>{
+        const t=EXERCISE_TYPES.find(x=>x.id===id);
+        return t?'<span>'+t.emoji+' ×'+cnt+'</span>':'';
+      }).join('')+
+      '<span style="color:var(--xp)">✨ +'+totalXp+' XP</span></div>';
+  }else{
+    sec.innerHTML+='<div class="well-empty">Esta semana aún sin actividad 🏃</div>';
+  }
+}
+async function logWeight(wk){
+  const inp=document.getElementById('weight-inp');
+  const w=parseFloat(inp.value);
+  if(!w||w<=0||w>300){showToast('Peso inválido','error');return}
+  if(!data.weightLog)data.weightLog=[];
+  if(data.weightLog.find(e=>e.week===wk)){showToast('Ya registraron peso esta semana','warning');return}
+  data.weightLog.push({week:wk,weight:w,date:today()});
+  const hatch=addXp(3,'peso semanal');
+  const ok=await saveData();
+  if(ok){renderAll();showToast('⚖️ Peso registrado +3 XP','success');if(hatch==='hatch')handleHatch();checkAchievements()}
+  else{data.weightLog.pop();data.xp-=3;showToast('Error','error')}
+}
+async function logExercise(type,wk){
+  const t=EXERCISE_TYPES.find(x=>x.id===type);
+  if(!t)return;
+  if(!data.exerciseLog)data.exerciseLog=[];
+  const todayStr=today();
+  if(data.exerciseLog.find(e=>e.date===todayStr&&e.type===type)){showToast('Ya hicieron esto hoy','warning');return}
+  data.exerciseLog.push({type,date:todayStr,week:wk});
+  const hatch=addXp(t.xp,'ejercicio '+t.name);
+  const ok=await saveData();
+  if(ok){renderAll();showToast(t.emoji+' '+t.name+' +'+t.xp+' XP','success');if(hatch==='hatch')handleHatch();checkAchievements()}
+  else{data.exerciseLog.pop();data.xp-=t.xp;showToast('Error','error')}
 }
 
 // ===== SETTINGS =====
