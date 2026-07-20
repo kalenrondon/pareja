@@ -34,7 +34,7 @@ body.light{
 html{font-size:16px;-webkit-text-size-adjust:100%}
 body{
   font-family:var(--font);background:var(--bg);color:var(--text-primary);
-  overflow-x:hidden;padding-bottom:var(--nav-height);min-height:100dvh;
+  overflow-x:hidden;min-height:100dvh;
   -webkit-font-smoothing:antialiased;
 }
 .container{max-width:500px;margin:0 auto;padding:0 16px}
@@ -111,30 +111,13 @@ body{
 
 /* FAB */
 #fab{
-  position:fixed;bottom:calc(var(--nav-height) + 16px);right:16px;z-index:40;
+  position:fixed;bottom:20px;right:16px;z-index:40;
   width:52px;height:52px;border-radius:50%;border:none;
   background:var(--primary);color:white;font-size:1.4rem;
   cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,0.4);
   display:flex;align-items:center;justify-content:center;transition:all 0.2s var(--ease);
 }
 #fab:active{transform:scale(0.9)}
-
-/* BOTTOM NAV */
-#bottom-nav{
-  position:fixed;bottom:0;left:0;right:0;z-index:100;
-  background:var(--bg);border-top:1px solid var(--border-light);
-  display:flex;padding:4px 0 env(safe-area-inset-bottom,4px);
-  height:var(--nav-height);
-}
-.nav-item{
-  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:1px;background:none;border:none;color:var(--text-tertiary);
-  font-size:0.6rem;font-weight:500;cursor:pointer;font-family:var(--font);
-  padding:4px 0;transition:all 0.15s var(--ease);
-}
-.nav-item svg{width:20px;height:20px}
-.nav-item.active{color:var(--primary)}
-.nav-item.active svg{color:var(--primary)}
 
 /* ===== PET TAB ===== */
 .pet-wrap{display:flex;flex-direction:column;align-items:center;padding:20px 0 12px}
@@ -348,6 +331,9 @@ body.light .jar-body{background:rgba(0,0,0,0.03)}
 }
 .fade-in{animation:fadeIn 0.3s var(--ease)}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.tab-content{display:none}
+.tab-content.active{display:block;animation:pageIn 0.25s var(--ease)}
+@keyframes pageIn{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}
 .hidden{display:none!important}
 
 /* DRAWER */
@@ -391,7 +377,7 @@ body.light .jar-body{background:rgba(0,0,0,0.03)}
 .ach-check{font-size:0.8rem;flex-shrink:0;width:24px;text-align:center}
 
 /* WIDGET MODE */
-body.widget-mode #app-header,body.widget-mode #bottom-nav,body.widget-mode #fab{display:none!important}
+body.widget-mode #app-header,body.widget-mode #fab{display:none!important}
 body.widget-mode main{padding-bottom:0}
 body.widget-mode .container{max-width:100%;padding:0}
 body.widget-mode .tab-content:not(#tab-pet){display:none!important}
@@ -410,10 +396,6 @@ body.widget-mode .warmth-area{display:none}
 /* PULSE EGG */
 .pet-emoji.pulse{animation:pulse 2s var(--ease) infinite}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
-
-/* ACHIEVEMENT TAB BADGE */
-.nav-item.has-badge{position:relative}
-.nav-item.has-badge::after{content:'•';position:absolute;top:0;right:2px;color:var(--xp);font-size:1rem}
 </style>
 </head>
 <body>
@@ -593,14 +575,6 @@ body.widget-mode .warmth-area{display:none}
 
   </div>
 </main>
-
-<!-- Bottom Nav -->
-<nav id="bottom-nav" style="display:none" role="tablist">
-  <button type="button" class="nav-item active" data-tab="pet" onclick="navigate('pet')" role="tab" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span>Mascota</span></button>
-  <button type="button" class="nav-item" data-tab="dashboard" onclick="navigate('dashboard')" role="tab" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Inicio</span></button>
-  <button type="button" class="nav-item" data-tab="tx" onclick="navigate('tx')" role="tab" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span>Movimientos</span></button>
-  <button type="button" class="nav-item" data-tab="goals" onclick="navigate('goals')" role="tab" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Metas</span></button>
-</nav>
 
 <!-- FAB -->
 <button type="button" id="fab" style="display:none" onclick="navigate('tx')">+</button>
@@ -951,7 +925,6 @@ function navigate(tab){
   curTab=tab;
   document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
   const t=document.getElementById('tab-'+tab);if(t)t.classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(el=>{const a=el.dataset.tab===tab;el.classList.toggle('active',a);el.setAttribute('aria-selected',a)});
   document.getElementById('h-title').textContent=TAB_NAMES[tab]||tab;
   const fab=document.getElementById('fab');fab.style.display=tab==='tx'||tab==='achievements'?'none':'flex';
   closeDrawer();
@@ -1135,9 +1108,10 @@ function renderDrawer(){
     {icon:'⚙️',label:'Ajustes',tab:'settings'}];
   document.getElementById('drawer-items').innerHTML=items.map(it=>{
     if(!it)return'<div style="height:1px;background:var(--border-light);margin:6px 12px"></div>';
+    const act=it.tab&&curTab===it.tab?' style="background:var(--primary-muted);color:var(--primary)"':'';
     const cl='drawer-item'+(it.danger?' danger':'');
     const onclick=it.tab?`navigate('${it.tab}');closeDrawer()`:it.fn?it.fn:'';
-    return`<button type="button" class="${cl}" onclick="${onclick}"><span class="dr-icon">${it.icon}</span>${it.label}</button>`
+    return`<button type="button" class="${cl}" onclick="${onclick}"${act}><span class="dr-icon">${it.icon}</span>${it.label}</button>`
   }).join('');
 }
 
@@ -1405,7 +1379,6 @@ async function init(){
   document.getElementById('loading-screen').style.display='none';
   document.getElementById('app-header').style.display='block';
   document.getElementById('main-content').style.display='block';
-  document.getElementById('bottom-nav').style.display='flex';
   document.getElementById('fab').style.display='flex';
   const d=new Date();selMonth=d.getMonth();selYear=d.getFullYear();
   applyTheme();setTxType('income');renderAll();navigate('pet');
