@@ -303,6 +303,71 @@ body.light .jar-body{background:rgba(0,0,0,0.03)}
 .fade-in{animation:fadeIn 0.3s var(--ease)}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .hidden{display:none!important}
+
+/* DRAWER */
+.drawer-overlay{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,0.5);opacity:0;pointer-events:none;transition:opacity 0.3s var(--ease);backdrop-filter:blur(4px)}
+.drawer-overlay.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;left:0;bottom:0;z-index:95;width:280px;max-width:80vw;background:var(--bg-elevated);border-right:1px solid var(--border-light);transform:translateX(-100%);transition:transform 0.35s var(--ease);display:flex;flex-direction:column;overflow-y:auto}
+.drawer.open{transform:translateX(0)}
+.drawer-header{display:flex;align-items:center;gap:10px;padding:16px;border-bottom:1px solid var(--border-light)}
+.drawer-emoji{font-size:1.6rem}
+.drawer-title{font-size:0.875rem;font-weight:700}
+.drawer-sub{font-size:0.65rem;color:var(--text-tertiary)}
+.drawer-close{width:30px;height:30px;border-radius:50%;border:none;background:var(--surface);color:var(--text-tertiary);font-size:0.8rem;cursor:pointer;margin-left:auto;display:flex;align-items:center;justify-content:center}
+.drawer-items{flex:1;padding:8px}
+.drawer-item{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border:none;border-radius:var(--radius-md);background:transparent;color:var(--text-primary);font-size:0.8125rem;font-weight:500;font-family:var(--font);cursor:pointer;transition:all 0.15s var(--ease);text-align:left}
+.drawer-item:hover{background:var(--surface-hover)}
+.drawer-item .dr-icon{width:28px;height:28px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:0.8rem;background:var(--bg)}
+.drawer-item.danger{color:var(--expense)}
+.drawer-item.danger .dr-icon{background:var(--expense-muted)}
+
+/* PET INTERACTIONS */
+.pet-actions{display:flex;gap:6px;width:100%;max-width:340px;margin:4px 0}
+.pet-act-btn{flex:1;padding:8px;border:none;border-radius:var(--radius-sm);font-size:0.7rem;font-weight:600;font-family:var(--font);cursor:pointer;background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border-light);transition:all 0.15s var(--ease);display:flex;align-items:center;justify-content:center;gap:4px}
+.pet-act-btn:active{transform:scale(0.96)}
+.pet-act-btn:disabled{opacity:0.4;cursor:default;transform:none}
+.pet-mood{font-size:0.7rem;color:var(--text-tertiary);margin-bottom:4px;display:flex;align-items:center;gap:4px}
+.pet-msg{font-size:0.7rem;color:var(--text-tertiary);font-style:italic;margin:4px 0;padding:6px 10px;background:var(--bg-card);border-radius:var(--radius-sm);max-width:340px;text-align:center;width:100%;min-height:28px;display:flex;align-items:center;justify-content:center}
+@keyframes heartFloat{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-60px) scale(1.2)}}
+.heart-float{position:fixed;pointer-events:none;z-index:160;font-size:1.5rem;animation:heartFloat 1s var(--ease) forwards}
+
+/* ACHIEVEMENTS */
+.ach-list{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.ach-item{display:flex;align-items:center;gap:10px;background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:10px 12px;transition:all 0.25s var(--ease)}
+.ach-item.done{opacity:0.7;border-color:var(--income-muted)}
+.ach-icon{width:32px;height:32px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:0.9rem;background:var(--surface);flex-shrink:0}
+.ach-item.done .ach-icon{background:var(--income-muted)}
+.ach-body{flex:1;min-width:0}
+.ach-name{font-size:0.75rem;font-weight:600}
+.ach-item.done .ach-name{color:var(--income)}
+.ach-desc{font-size:0.65rem;color:var(--text-tertiary)}
+.ach-reward{font-size:0.65rem;color:var(--xp);font-weight:600;white-space:nowrap}
+.ach-check{font-size:0.8rem;flex-shrink:0;width:24px;text-align:center}
+
+/* WIDGET MODE */
+body.widget-mode #app-header,body.widget-mode #bottom-nav,body.widget-mode #fab{display:none!important}
+body.widget-mode main{padding-bottom:0}
+body.widget-mode .container{max-width:100%;padding:0}
+body.widget-mode .tab-content:not(#tab-pet){display:none!important}
+body.widget-mode #tab-pet .pet-wrap{padding:10vh 16px}
+body.widget-mode #tab-pet .xp-bar-wrap{max-width:280px}
+body.widget-mode #tab-pet .pet-stats{max-width:280px}
+body.widget-mode #tab-pet .pet-emoji{font-size:6rem}
+body.widget-mode #tab-pet .pet-act-btn{display:none}
+body.widget-mode #tab-pet .checkin-btn{display:none}
+body.widget-mode #tab-pet .streak-row{display:none}
+body.widget-mode #tab-pet .pet-actions{display:none}
+body.widget-mode #tab-pet .pet-msg{display:none}
+body.widget-mode #tab-pet .pet-mood{display:none}
+body.widget-mode .warmth-area{display:none}
+
+/* PULSE EGG */
+.pet-emoji.pulse{animation:pulse 2s var(--ease) infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+
+/* ACHIEVEMENT TAB BADGE */
+.nav-item.has-badge{position:relative}
+.nav-item.has-badge::after{content:'•';position:absolute;top:0;right:2px;color:var(--xp);font-size:1rem}
 </style>
 </head>
 <body>
@@ -322,10 +387,24 @@ body.light .jar-body{background:rgba(0,0,0,0.03)}
     </div>
     <div class="h-right">
       <button type="button" class="h-btn" onclick="openStages()" aria-label="Etapas">🏆</button>
-      <button type="button" class="h-btn" onclick="toggleTheme()" aria-label="Tema">🌙</button>
+      <button type="button" class="h-btn" onclick="toggleDrawer()" aria-label="Menú">☰</button>
     </div>
   </div></div>
 </header>
+
+<!-- Drawer -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <div class="drawer-emoji" id="drawer-emoji">🥚</div>
+    <div>
+      <div class="drawer-title" id="drawer-title">Menú</div>
+      <div class="drawer-sub" id="drawer-sub-title">Navegación</div>
+    </div>
+    <button type="button" class="drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-items" id="drawer-items"></div>
+</div>
 
 <!-- Main -->
 <main id="main-content" style="display:none">
@@ -347,6 +426,12 @@ body.light .jar-body{background:rgba(0,0,0,0.03)}
           <div class="pet-stat"><div class="ps-val balance" id="ps-balance">$0</div><div class="ps-label">Disponible</div></div>
           <div class="pet-stat"><div class="ps-val debt" id="ps-debt">$0</div><div class="ps-label">Deudas</div></div>
         </div>
+        <div class="pet-mood" id="pet-mood">😊 Feliz</div>
+        <div class="pet-actions">
+          <button type="button" class="pet-act-btn" id="feed-btn" onclick="feedPet()">🍼 Alimentar</button>
+          <button type="button" class="pet-act-btn" onclick="petPet()">🤗 Acariciar</button>
+        </div>
+        <div class="pet-msg" id="pet-msg">✨ ¡Bienvenidos!</div>
         <button type="button" class="checkin-btn" id="checkin-btn" onclick="doCheckin()">📅 Check-in diario</button>
         <div class="streak-row">Racha: <strong id="streak-num">0</strong> días</div>
       </div>
@@ -421,6 +506,14 @@ body.light .jar-body{background:rgba(0,0,0,0.03)}
       </div>
     </div>
 
+    <!-- TAB: Achievements -->
+    <div class="tab-content" id="tab-achievements">
+      <div class="card">
+        <div class="card-title">🎖️ Logros <span style="font-size:0.65rem;color:var(--text-tertiary);font-weight:400" id="ach-counter"></span></div>
+        <div class="ach-list" id="ach-list"></div>
+      </div>
+    </div>
+
     <!-- TAB: Settings -->
     <div class="tab-content" id="tab-settings">
       <div class="set-list">
@@ -452,7 +545,6 @@ body.light .jar-body{background:rgba(0,0,0,0.03)}
   <button type="button" class="nav-item" data-tab="dashboard" onclick="navigate('dashboard')" role="tab" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Inicio</span></button>
   <button type="button" class="nav-item" data-tab="tx" onclick="navigate('tx')" role="tab" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span>Movimientos</span></button>
   <button type="button" class="nav-item" data-tab="goals" onclick="navigate('goals')" role="tab" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Metas</span></button>
-  <button type="button" class="nav-item" data-tab="settings" onclick="navigate('settings')" role="tab" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg><span>Ajustes</span></button>
 </nav>
 
 <!-- FAB -->
@@ -514,7 +606,7 @@ const CATEGORIES = {
 };
 const CAT_ICONS = {salario:'💼',ventas:'📦',extra:'🎲',regalo:'🎁',otro:'📌',comida:'🍽️',transporte:'🚌',servicios:'💡',salud:'🏥',entretenimiento:'🎬',deuda:'📄'};
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-const TAB_NAMES = {pet:'Mascota',dashboard:'Inicio',tx:'Movimientos',goals:'Metas',settings:'Ajustes'};
+const TAB_NAMES = {pet:'Mascota',dashboard:'Inicio',tx:'Movimientos',goals:'Metas',achievements:'Logros',settings:'Ajustes'};
 const PET_SHOP = [
   {id:'dog',name:'Perro',emoji:'🐶',threshold:50000,desc:'Fiel compañero'},
   {id:'bunny',name:'Conejo',emoji:'🐰',threshold:200000,desc:'Salta que te salta'},
@@ -522,7 +614,37 @@ const PET_SHOP = [
   {id:'fox',name:'Zorro',emoji:'🦊',threshold:1500000,desc:'Astuto y veloz'},
   {id:'dragon',name:'Dragón',emoji:'🐉',threshold:3000000,desc:'Poder legendario'}
 ];
-const DEFAULTS = {names:{person1:'',person2:''},transactions:[],debts:[],goals:[],budgets:{},settings:{darkMode:false,goalDeadlineDay:15,petType:'dragon'},xp:0,streak:0,lastCheckin:null,xpLog:[],warmth:0,collectedPets:[]};
+const DEFAULTS = {names:{person1:'',person2:''},transactions:[],debts:[],goals:[],budgets:{},settings:{darkMode:false,goalDeadlineDay:15,petType:'dragon',petName:'Nexo'},xp:0,streak:0,lastCheckin:null,xpLog:[],warmth:0,collectedPets:[],achievements:{}};
+const ACHIEVEMENTS = [
+  {id:'first_tx',name:'Primer paso',desc:'Agreguen su primer movimiento',icon:'💳',reward:10,check:d=>(d.transactions||[]).length>=1},
+  {id:'tx_50',name:'Movidos',desc:'50 movimientos registrados',icon:'📊',reward:15,check:d=>(d.transactions||[]).length>=50},
+  {id:'streak_7',name:'Racha semanal',desc:'7 días de check-in seguidos',icon:'🔥',reward:30,check:d=>(d.streak||0)>=7},
+  {id:'streak_30',name:'Dedicación',desc:'30 días de racha',icon:'💪',reward:100,check:d=>(d.streak||0)>=30},
+  {id:'goal_done',name:'Meta cumplida',desc:'Completen una meta de ahorro',icon:'🎯',reward:50,check:d=>(d.goals||[]).some(g=>Number(g.saved)>=Number(g.target))},
+  {id:'debt_done',name:'Libres',desc:'Paguen una deuda completa',icon:'🔓',reward:30,check:d=>(d.debts||[]).some(dd=>dd.paid>=dd.total)},
+  {id:'xp_1000',name:'Aprendices',desc:'1000 XP acumulados',icon:'⭐',reward:50,check:d=>d.xp>=1000},
+  {id:'xp_5000',name:'Maestros',desc:'5000 XP acumulados',icon:'🌟',reward:200,check:d=>d.xp>=5000},
+  {id:'save_500k',name:'Ahorradores',desc:'$500,000 ahorrados en metas',icon:'💰',reward:80,check:()=>getTotalSave()>=500000},
+  {id:'save_1m',name:'Gran meta',desc:'$1,000,000 ahorrados',icon:'💎',reward:100,check:()=>getTotalSave()>=1000000},
+  {id:'collector',name:'Coleccionistas',desc:'Consigan todas las mascotas',icon:'👑',reward:100,check:d=>(d.collectedPets||[]).length>=PET_SHOP.length},
+  {id:'names_set',name:'Pareja',desc:'Configuren ambos nombres',icon:'💕',reward:10,check:d=>d.settings&&d.settings.name1&&d.settings.name2},
+  {id:'budget_hero',name:'Presupuestadores',desc:'Un mes sin exceder presupuestos',icon:'🛡️',reward:40,check:a=>false},
+  {id:'hatch_egg',name:'Nacimiento',desc:'El huevo eclosionó',icon:'🐣',reward:20,check:d=>d.xp>=80},
+];
+const PET_MSGS = [
+  '✨ ¡Ahorrar es el primer paso a la libertad!',
+  '💪 Cada peso cuenta, ¡no se rindan!',
+  '🌟 Ustedes pueden con todo',
+  '❤️ Juntos, cada meta es posible',
+  '🔥 La disciplina es el puente entre metas y logros',
+  '🎯 Enfoquen en lo que importa',
+  '💎 El esfuerzo de hoy es el tesoro de mañana',
+  '🐣 Crecer toma tiempo, pero vale la pena',
+  '⭐ Cada pequeño paso suma',
+  '🌈 Después de la lluvia llega la calma',
+  '🏆 El éxito es la suma de pequeños esfuerzos',
+  '💕 Lo importante no es la meta, es quien camina a tu lado',
+];
 
 // ===== STATE =====
 let data=null,txType='income',selMonth=null,selYear=null,curTab='pet',confirmCb=null;
@@ -603,10 +725,12 @@ function mergeData(d){
   if(!d)return JSON.parse(JSON.stringify(DEFAULTS));
   if(!d.xp)d.xp=0;if(!d.streak)d.streak=0;if(!d.lastCheckin)d.lastCheckin=null;if(!d.xpLog)d.xpLog=[];
   if(!d.debts)d.debts=[];if(!d.goals)d.goals=[];if(!d.budgets)d.budgets={};
-  if(!d.settings)d.settings={darkMode:false,goalDeadlineDay:15,petType:'dragon'};
+  if(!d.settings)d.settings={darkMode:false,goalDeadlineDay:15,petType:'dragon',petName:'Nexo'};
   if(!d.settings.petType)d.settings.petType='dragon';
+  if(!d.settings.petName)d.settings.petName='Nexo';
   if(!d.names)d.names={person1:'',person2:''};
   if(!d.warmth)d.warmth=0;if(!d.collectedPets)d.collectedPets=[];
+  if(!d.achievements)d.achievements={};
   return d;
 }
 async function saveData(){
@@ -652,6 +776,7 @@ async function addTx(){
     if(dayXp<5)showXpFloat(xpGain,'xp');
     try{navigator.vibrate(10)}catch(e){}
     if(hatch)handleHatch();
+    checkAchievements();
     if(txType==='expense'){
       const buds=getBuds(),lim=buds[c];
       if(lim){const sp=expByC(selYear,selMonth)[c]||0,pct=(sp/lim)*100;if(pct>=100){addXp(-5,'exceso presupuesto');showToast('⚠️ Presupuesto excedido -5 XP','warning')}else if(pct>=80)showToast(`⚠️ ${c} al ${pct.toFixed(0)}%`,'warning')}
@@ -684,7 +809,7 @@ async function payDebt(id){
   let hatch=false;
   if(xpGain>0){if(!isHatched())addWarmth(Math.min(xpGain,10));hatch=addXp(xpGain,'pago deuda')==='hatch'}
   const ok=await saveData();
-  if(ok){renderAll();inp.value='';showToast(d.paid>=d.total?'¡Deuda pagada! 🎉':'Abono ✅','success');if(xpGain>0)showXpFloat(xpGain,'xp');if(hatch)handleHatch()}
+  if(ok){renderAll();inp.value='';showToast(d.paid>=d.total?'¡Deuda pagada! 🎉':'Abono ✅','success');if(xpGain>0)showXpFloat(xpGain,'xp');if(hatch)handleHatch();checkAchievements()}
   else showToast('Error','error')
 }
 function confirmDelDebt(id){showConfirm('¿Eliminar deuda?',async()=>{data.debts=data.debts.filter(d=>d.id!==id);const ok=await saveData();if(ok){renderAll();showToast('Eliminada','success')}else showToast('Error','error')})}
@@ -708,7 +833,7 @@ async function contGoal(gid){
   let hatch=false;
   if(xpGain>0){if(!isHatched())addWarmth(Math.min(xpGain,10));hatch=addXp(xpGain,'meta ahorro')==='hatch'}
   const ok=await saveData();
-  if(ok){renderAll();inp.value='';showToast('Aportado a '+g.name+' ✅','success');if(xpGain>0)showXpFloat(xpGain,'xp');if(hatch)handleHatch()}
+  if(ok){renderAll();inp.value='';showToast('Aportado a '+g.name+' ✅','success');if(xpGain>0)showXpFloat(xpGain,'xp');if(hatch)handleHatch();checkAchievements()}
   else{g.saved=prev;showToast('Error','error')}
 }
 async function updGoalT(gid){
@@ -744,6 +869,7 @@ async function doCheckin(){
     showToast('📅 Check-in +'+xpGain+' XP'+(bonus?' (racha x'+data.streak+')':''),'success');
     try{navigator.vibrate(10)}catch(e){}
     if(hatch==='hatch')handleHatch();
+    checkAchievements();
   }else{data.xp-=xpGain;data.streak--;data.xpLog.pop();showToast('Error','error')}
 }
 
@@ -759,13 +885,14 @@ function navigate(tab){
   const t=document.getElementById('tab-'+tab);if(t)t.classList.add('active');
   document.querySelectorAll('.nav-item').forEach(el=>{const a=el.dataset.tab===tab;el.classList.toggle('active',a);el.setAttribute('aria-selected',a)});
   document.getElementById('h-title').textContent=TAB_NAMES[tab]||tab;
-  const fab=document.getElementById('fab');fab.style.display=tab==='tx'?'none':'flex';
+  const fab=document.getElementById('fab');fab.style.display=tab==='tx'||tab==='achievements'?'none':'flex';
+  closeDrawer();
 }
 
 // ===== RENDER =====
 function renderAll(){
   if(!data)return;
-  renderPet();renderDashboard();renderTxs();renderGoals();renderSettings();updateHeader();
+  renderPet();renderDashboard();renderTxs();renderGoals();renderSettings();renderAchievements();renderDrawer();updateHeader();updatePetMsg();
 }
 function updateHeader(){
   const s=getStage(data.xp);
@@ -777,6 +904,7 @@ function renderPet(){
   const curMin=s.minXp,nextMin=next.minXp,range=nextMin-curMin,pct=range>0?Math.min(100,((data.xp-curMin)/range)*100):100;
   const em=document.getElementById('pet-emoji');
   if(!isHatched()&&data.warmth>50)em.className='pet-emoji pulse';else em.className='pet-emoji';
+  em.style.cursor='pointer';em.onclick=petPet;
   em.textContent=s.emoji;
   document.getElementById('pet-stage').textContent=s.name;
   document.getElementById('pet-desc').textContent=s.desc;
@@ -794,6 +922,10 @@ function renderPet(){
   if(data.lastCheckin===today()){btn.textContent='✅ Check-in listo';btn.className='checkin-btn done';btn.disabled=true}
   else{btn.textContent='📅 Check-in diario';btn.className='checkin-btn';btn.disabled=false}
   document.getElementById('streak-num').textContent=data.streak||0;
+  // Mood
+  const mood=getMood();
+  const mel=document.getElementById('pet-mood');
+  if(mel)mel.textContent=mood.emoji+' '+mood.label;
   // Warmth bar during egg phase
   let warmthHtml=document.getElementById('warmth-area');
   if(!isHatched()){
@@ -907,6 +1039,124 @@ async function setPetType(type){
   const ok=await saveData();
   if(ok){renderAll();showToast('Mascota cambiada: '+PET_TYPES[type].name+' '+PET_TYPES[type].emoji,'success')}
   else showToast('Error','error');
+}
+
+// ===== DRAWER =====
+function toggleDrawer(){document.getElementById('drawer').classList.toggle('open');document.getElementById('drawer-overlay').classList.toggle('open')}
+function closeDrawer(){document.getElementById('drawer').classList.remove('open');document.getElementById('drawer-overlay').classList.remove('open')}
+function renderDrawer(){
+  const s=getStage(data.xp);
+  document.getElementById('drawer-emoji').textContent=s.emoji;
+  document.getElementById('drawer-title').textContent=(data.settings&&data.settings.petName)||'Nexo';
+  document.getElementById('drawer-sub-title').textContent=data.xp+' XP';
+  const items=[
+    {icon:'🐣',label:'Mascota',tab:'pet'},
+    {icon:'📊',label:'Inicio',tab:'dashboard'},
+    {icon:'💳',label:'Movimientos',tab:'tx'},
+    {icon:'🎯',label:'Metas',tab:'goals'},
+    {icon:'🎖️',label:'Logros',tab:'achievements'},
+    null,
+    {icon:'🏆',label:'Etapas',fn:'openStages()'},
+    {icon:'🌙',label:'Tema oscuro',fn:'toggleTheme()'},
+    {icon:'📥',label:'Exportar CSV',fn:'exportCSV()'},
+    {icon:'📱',label:'Modo widget',fn:'toggleWidget()'},
+    null,
+    {icon:'⚙️',label:'Ajustes',tab:'settings'}];
+  document.getElementById('drawer-items').innerHTML=items.map(it=>{
+    if(!it)return'<div style="height:1px;background:var(--border-light);margin:6px 12px"></div>';
+    const cl='drawer-item'+(it.danger?' danger':'');
+    const onclick=it.tab?`navigate('${it.tab}');closeDrawer()`:it.fn?it.fn:'';
+    return`<button type="button" class="${cl}" onclick="${onclick}"><span class="dr-icon">${it.icon}</span>${it.label}</button>`
+  }).join('');
+}
+
+// ===== PET INTERACTIONS =====
+function getMood(){
+  if(!isHatched())return{emoji:'🥚',label:'Esperando...'};
+  const todayLogs=data.xpLog.filter(l=>l.date===today());
+  const gain=todayLogs.reduce((s,l)=>s+(l.amount>0?l.amount:0),0);
+  const loss=todayLogs.reduce((s,l)=>s+(l.amount<0?Math.abs(l.amount):0),0);
+  const s=getStage(data.xp);
+  if(s.idx>=5)return{emoji:'🤩',label:'Éxtasis'};
+  if(gain>0)return{emoji:'😊',label:'Feliz'};
+  if(loss>0)return{emoji:'😢',label:'Triste'};
+  return{emoji:'😐',label:'Normal'};
+}
+function updatePetMsg(){
+  const el=document.getElementById('pet-msg');
+  if(!el)return;
+  if(!isHatched()){el.textContent='🔥 Denle calor con sus finanzas';return}
+  const todayMsgs=parseInt(sessionStorage.getItem('petMsgDay')||'0')!==parseInt(data.xp%7);
+  let idx;
+  if(!todayMsgs||!sessionStorage.getItem('petMsgIdx')){
+    idx=Math.floor(Math.random()*PET_MSGS.length);
+    sessionStorage.setItem('petMsgIdx',idx);
+    sessionStorage.setItem('petMsgDay',data.xp%7);
+  }else idx=parseInt(sessionStorage.getItem('petMsgIdx'));
+  el.textContent='💬 '+PET_MSGS[idx];
+}
+function petPet(){
+  if(!isHatched()){showToast('🥚 El huevo todavía no nace','warning');return}
+  const em=document.getElementById('pet-emoji');
+  em.classList.remove('pop');void em.offsetWidth;em.classList.add('pop');
+  const emojis=['❤️','💕','💖','✨','⭐'];
+  showHeartFloat(emojis[Math.floor(Math.random()*emojis.length)]);
+  try{navigator.vibrate(8)}catch(e){}
+}
+function feedPet(){
+  if(isHatched()){
+    if(data.xp<10){showToast('No tienen suficiente XP para alimentar','warning');return}
+    addXp(-10,'alimentar');
+    showToast('🍼 +10 XP de felicidad','success');
+    showHeartFloat('🍼');
+    saveData().then(renderAll);
+  }else{
+    if(data.xp<5){showToast('No tienen suficiente XP','warning');return}
+    addXp(-5,'calentar huevo');
+    if(!isHatched())addWarmth(8);
+    showToast('🔥 +8% calor para el huevo','success');
+    showHeartFloat('🔥');
+    saveData().then(renderAll);
+  }
+}
+function showHeartFloat(emoji){
+  const el=document.createElement('div');el.className='heart-float';
+  el.textContent=emoji;
+  const petEm=document.getElementById('pet-emoji');
+  const rect=petEm.getBoundingClientRect();
+  el.style.left=(rect.left+rect.width/2-12)+'px';el.style.top=(rect.top-10)+'px';
+  document.body.appendChild(el);setTimeout(()=>el.remove(),1100);
+}
+
+// ===== ACHIEVEMENTS =====
+function checkAchievements(){
+  if(!data)return;
+  const done=data.achievements||{};
+  let changed=false;
+  ACHIEVEMENTS.forEach(a=>{
+    if(done[a.id])return;
+    if(a.check(data)){done[a.id]=true;data.xp+=a.reward;changed=true;showToast('🎖️ Logro: '+a.name+' +'+a.reward+' XP','success',3500)}
+  });
+  data.achievements=done;
+  if(changed)saveData().then(renderAll);
+}
+function renderAchievements(){
+  const done=data.achievements||{};
+  const total=ACHIEVEMENTS.length;
+  const unlocked=ACHIEVEMENTS.filter(a=>done[a.id]).length;
+  document.getElementById('ach-counter').textContent='('+unlocked+'/'+total+')';
+  document.getElementById('ach-list').innerHTML=ACHIEVEMENTS.map(a=>{
+    const isDone=done[a.id];
+    return`<div class="ach-item${isDone?' done':''}"><div class="ach-icon">${a.icon}</div><div class="ach-body"><div class="ach-name">${a.name}</div><div class="ach-desc">${a.desc}</div></div><div class="ach-reward">+${a.reward} XP</div><div class="ach-check">${isDone?'✅':''}</div></div>`
+  }).join('');
+}
+
+// ===== WIDGET =====
+function toggleWidget(){
+  closeDrawer();
+  document.body.classList.toggle('widget-mode');
+  showToast(document.body.classList.contains('widget-mode')?'📱 Modo widget activado':'📱 Modo normal','success');
+  renderAll();
 }
 
 // ===== SETTINGS =====
