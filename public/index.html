@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#0C0C0E" media="(prefers-color-scheme:dark)">
-<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme:light)">
+<meta name="theme-color" content="#0C0C0E" id="theme-color-meta">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Finanzas">
@@ -703,9 +702,9 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
       </div>
     </div>
     <div class="header-right">
-      <button type="button" class="header-btn" id="theme-btn" aria-label="Cambiar tema">🌙</button>
-      <button type="button" class="header-btn" id="export-btn" aria-label="Exportar CSV">📥</button>
-      <button type="button" class="header-btn" id="settings-btn" aria-label="Configuración">⚙️</button>
+      <button type="button" class="header-btn" id="theme-btn" onclick="toggleTheme()" aria-label="Cambiar tema">🌙</button>
+      <button type="button" class="header-btn" id="export-btn" onclick="exportCSV()" aria-label="Exportar CSV">📥</button>
+      <button type="button" class="header-btn" id="settings-btn" onclick="openSettings()" aria-label="Configuración">⚙️</button>
     </div>
   </div>
 </header>
@@ -773,7 +772,7 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
 
     <!-- TAB: Transactions -->
     <div class="tab-content" id="tab-transactions">
-      <div class="card mb-2" id="tx-form-card">
+      <div class="card mb-2" id="tx-form-card-tab">
         <h3 style="margin-bottom:12px">Nuevo movimiento</h3>
         <div class="toggle-group mb-1" id="tx-type-toggle">
           <button type="button" class="toggle-opt active-income" data-value="income" onclick="setTxType('income')">💰 Ingreso</button>
@@ -1321,8 +1320,7 @@ function drawPie(e,tot){
   const ctx=cv.getContext('2d'),w=cv.width,h=cv.height,cx=w/2,cy=h/2,r=Math.min(w,h)/2-5;
   ctx.clearRect(0,0,w,h);if(!e.length)return;
   const dpr=window.devicePixelRatio||1;
-  ctx.scale(1/dpr,1/dpr); ctx.restore=function(){ctx.setTransform(1,0,0,1,0,0)};
-  ctx.save();
+  ctx.save();ctx.scale(1/dpr,1/dpr);
   let start=-Math.PI/2;
   e.forEach(([,val],i)=>{const sl=(val/tot)*Math.PI*2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,start,start+sl);ctx.closePath();ctx.fillStyle=COLORS[i%COLORS.length];ctx.fill();ctx.strokeStyle=document.body.classList.contains('light')?'#FFFFFF':'#1C1C1E';ctx.lineWidth=2;ctx.stroke();start+=sl});
   ctx.beginPath();ctx.arc(cx,cy,r*0.45,0,Math.PI*2);
@@ -1390,6 +1388,7 @@ async function contGoal(gid){
   const inp=document.getElementById('goal-add-'+gid),a=rawVal(inp);
   if(!a||a<=0){showToast('Monto inválido','error');return}
   const g=data.goals.find(x=>x.id===gid);if(!g)return;const prev=g.saved;
+  if(g.saved>=g.target){showToast('Meta ya cumplida','warning');return}
   g.saved=Math.min(g.saved+a,g.target);
   if(!data.goalContributions)data.goalContributions={};
   if(!data.goalContributions[gid])data.goalContributions[gid]=[];
@@ -1458,7 +1457,7 @@ function applyTheme(){
   const dark=data&&data.settings&&data.settings.darkMode;
   const b=document.body;b.classList.toggle('light',!dark);
   document.getElementById('theme-btn').textContent=dark?'☀️':'🌙';
-  document.querySelector('meta[name="theme-color"]').setAttribute('content',dark?'#0C0C0E':'#F2F2F7');
+  document.getElementById('theme-color-meta').setAttribute('content',dark?'#0C0C0E':'#F2F2F7');
   const sw=document.querySelector('#dark-switch');
   if(sw){sw.classList.toggle('on',dark);sw.setAttribute('aria-checked',dark)}
 }
