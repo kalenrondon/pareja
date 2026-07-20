@@ -515,7 +515,14 @@ const CATEGORIES = {
 const CAT_ICONS = {salario:'💼',ventas:'📦',extra:'🎲',regalo:'🎁',otro:'📌',comida:'🍽️',transporte:'🚌',servicios:'💡',salud:'🏥',entretenimiento:'🎬',deuda:'📄'};
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const TAB_NAMES = {pet:'Mascota',dashboard:'Inicio',tx:'Movimientos',goals:'Metas',settings:'Ajustes'};
-const DEFAULTS = {names:{person1:'',person2:''},transactions:[],debts:[],goals:[],budgets:{},settings:{darkMode:false,goalDeadlineDay:15,petType:'dragon'},xp:0,streak:0,lastCheckin:null,xpLog:[]};
+const PET_SHOP = [
+  {id:'dog',name:'Perro',emoji:'🐶',threshold:50000,desc:'Fiel compañero'},
+  {id:'bunny',name:'Conejo',emoji:'🐰',threshold:200000,desc:'Salta que te salta'},
+  {id:'cat',name:'Gato',emoji:'🐱',threshold:500000,desc:'Elegante y curioso'},
+  {id:'fox',name:'Zorro',emoji:'🦊',threshold:1500000,desc:'Astuto y veloz'},
+  {id:'dragon',name:'Dragón',emoji:'🐉',threshold:3000000,desc:'Poder legendario'}
+];
+const DEFAULTS = {names:{person1:'',person2:''},transactions:[],debts:[],goals:[],budgets:{},settings:{darkMode:false,goalDeadlineDay:15,petType:'dragon'},xp:0,streak:0,lastCheckin:null,xpLog:[],warmth:0,collectedPets:[]};
 
 // ===== STATE =====
 let data=null,txType='income',selMonth=null,selYear=null,curTab='pet',confirmCb=null;
@@ -532,6 +539,38 @@ function rawVal(el){return parseInt((el.value||'').replace(/\./g,''))||0}
 function daysBetween(a,b){const da=new Date(a+'T12:00:00'),db=new Date(b+'T12:00:00');return Math.round((da-db)/(86400000))}
 function getPetType(){return PET_TYPES[(data.settings&&data.settings.petType)||'dragon']||PET_TYPES.dragon}
 function getStage(xp){let i=0;for(const st of STAGES){if(xp>=st.minXp)i++}const s=STAGES[Math.min(i,STAGES.length-1)];const pt=getPetType();return{...s,emoji:(pt.evo[STAGES.indexOf(s)]||pt.emoji),idx:STAGES.indexOf(s)}}
+function getTotalSave(){return(data.goals||[]).reduce((s,g)=>s+Number(g.saved),0)}
+function isHatched(){return data.xp>=80}
+function addWarmth(am){
+  if(isHatched())return;
+  data.warmth=Math.min(100,(data.warmth||0)+am);
+}
+function rollPet(){
+  const save=getTotalSave();
+  const avail=PET_SHOP.filter(p=>save>=p.threshold);
+  const pool=avail.length?avail:[PET_SHOP[0]];
+  const sorted=[...pool].sort((a,b)=>b.threshold-a.threshold);
+  const warm=(data.warmth||0);
+  const weights=sorted.map((p,i)=>{
+    const idx=PET_SHOP.findIndex(s=>s.id===p.id);
+    return Math.max(1,(idx+1)*warm+(save/10000));
+  });
+  const total=weights.reduce((s,w)=>s+w,0);
+  let r=Math.random()*total;
+  for(let i=0;i<sorted.length;i++){r-=weights[i];if(r<=0)return sorted[i].id}
+  return sorted[sorted.length-1].id;
+}
+function doHatch(){
+  const petId=rollPet();
+  data.settings.petType=petId;
+  if(!data.collectedPets)data.collectedPets=[];
+  if(!data.collectedPets.includes(petId))data.collectedPets.push(petId);
+}
+function handleHatch(){
+  const pt=PET_TYPES[data.settings.petType];
+  showToast('🎉 ¡El huevo eclosionó! Tienen un '+pt.emoji+' '+pt.name,'success',4000);
+  setTimeout(()=>renderAll(),100);
+}
 
 // ===== FORMAT INPUT =====
 function fmtInput(el){
@@ -567,6 +606,7 @@ function mergeData(d){
   if(!d.settings)d.settings={darkMode:false,goalDeadlineDay:15,petType:'dragon'};
   if(!d.settings.petType)d.settings.petType='dragon';
   if(!d.names)d.names={person1:'',person2:''};
+  if(!d.warmth)d.warmth=0;if(!d.collectedPets)d.collectedPets=[];
   return d;
 }
 async function saveData(){
@@ -576,8 +616,11 @@ async function saveData(){
 
 // ===== XP SYSTEM =====
 function addXp(amount,reason){
+  const wasHatched=isHatched();
   data.xp=Math.max(0,data.xp+amount);
   data.xpLog.push({id:uid(),amount,reason,date:today()});
+  if(!wasHatched&&isHatched()){doHatch();return'hatch'}
+  return'ok'
 }
 function getTxXpDay(){
   const todayStr=today();
@@ -600,13 +643,15 @@ async function addTx(){
   const tx={id:uid(),type:txType,amount:a,who:w,category:c,note:n,date:today()};
   data.transactions.push(tx);
   const xpGain=1;const dayXp=getTxXpDay();
-  if(dayXp<5){addXp(xpGain,'transaccion')}
+  let hatch=false;
+  if(dayXp<5){if(!isHatched())addWarmth(1);hatch=addXp(xpGain,'transaccion')==='hatch'}
   const ok=await saveData();
   if(ok){
     renderAll();document.getElementById('tx-amount').value='';document.getElementById('tx-note').value='';
     showToast('Movimiento agregado ✅','success');
     if(dayXp<5)showXpFloat(xpGain,'xp');
     try{navigator.vibrate(10)}catch(e){}
+    if(hatch)handleHatch();
     if(txType==='expense'){
       const buds=getBuds(),lim=buds[c];
       if(lim){const sp=expByC(selYear,selMonth)[c]||0,pct=(sp/lim)*100;if(pct>=100){addXp(-5,'exceso presupuesto');showToast('⚠️ Presupuesto excedido -5 XP','warning')}else if(pct>=80)showToast(`⚠️ ${c} al ${pct.toFixed(0)}%`,'warning')}
@@ -636,9 +681,10 @@ async function payDebt(id){
   const r=d.total-d.paid;if(a>r){showToast('Supera el saldo','error');return}
   d.paid=Math.min(d.paid+a,d.total);
   const xpGain=Math.floor(a/10000)*2;
-  if(xpGain>0)addXp(xpGain,'pago deuda');
+  let hatch=false;
+  if(xpGain>0){if(!isHatched())addWarmth(Math.min(xpGain,10));hatch=addXp(xpGain,'pago deuda')==='hatch'}
   const ok=await saveData();
-  if(ok){renderAll();inp.value='';showToast(d.paid>=d.total?'¡Deuda pagada! 🎉':'Abono ✅','success');if(xpGain>0)showXpFloat(xpGain,'xp')}
+  if(ok){renderAll();inp.value='';showToast(d.paid>=d.total?'¡Deuda pagada! 🎉':'Abono ✅','success');if(xpGain>0)showXpFloat(xpGain,'xp');if(hatch)handleHatch()}
   else showToast('Error','error')
 }
 function confirmDelDebt(id){showConfirm('¿Eliminar deuda?',async()=>{data.debts=data.debts.filter(d=>d.id!==id);const ok=await saveData();if(ok){renderAll();showToast('Eliminada','success')}else showToast('Error','error')})}
@@ -659,9 +705,10 @@ async function contGoal(gid){
   if(g.saved>=g.target){showToast('Meta ya cumplida','warning');return}
   g.saved=Math.min(g.saved+a,g.target);
   const xpGain=Math.floor(a/10000)*2;
-  if(xpGain>0)addXp(xpGain,'meta ahorro');
+  let hatch=false;
+  if(xpGain>0){if(!isHatched())addWarmth(Math.min(xpGain,10));hatch=addXp(xpGain,'meta ahorro')==='hatch'}
   const ok=await saveData();
-  if(ok){renderAll();inp.value='';showToast('Aportado a '+g.name+' ✅','success');if(xpGain>0)showXpFloat(xpGain,'xp')}
+  if(ok){renderAll();inp.value='';showToast('Aportado a '+g.name+' ✅','success');if(xpGain>0)showXpFloat(xpGain,'xp');if(hatch)handleHatch()}
   else{g.saved=prev;showToast('Error','error')}
 }
 async function updGoalT(gid){
@@ -688,11 +735,16 @@ async function doCheckin(){
   if(last){const diff=daysBetween(todayStr,last);if(diff===1){data.streak=(data.streak||0)+1;bonus=Math.min(data.streak*2,20)}else if(diff>1){data.streak=1}else return}
   else data.streak=1;
   const xpGain=5+bonus;
-  data.xp+=xpGain;data.lastCheckin=todayStr;
-  data.xpLog.push({id:uid(),amount:xpGain,reason:'checkin'+(bonus?' racha':'')+' +'+bonus,date:todayStr});
+  if(!isHatched())addWarmth(3);
+  const hatch=addXp(xpGain,'checkin'+(bonus?' racha':'')+' +'+bonus);
+  data.lastCheckin=todayStr;
   const ok=await saveData();
-  if(ok){renderAll();showXpFloat(xpGain,'xp');showToast('📅 Check-in +'+xpGain+' XP'+(bonus?' (racha x'+data.streak+')':' '),'success');try{navigator.vibrate(10)}catch(e){}}
-  else{data.xp-=xpGain;data.streak--;data.xpLog.pop();showToast('Error','error')}
+  if(ok){
+    renderAll();showXpFloat(xpGain,'xp');
+    showToast('📅 Check-in +'+xpGain+' XP'+(bonus?' (racha x'+data.streak+')':''),'success');
+    try{navigator.vibrate(10)}catch(e){}
+    if(hatch==='hatch')handleHatch();
+  }else{data.xp-=xpGain;data.streak--;data.xpLog.pop();showToast('Error','error')}
 }
 
 // ===== MONTH =====
@@ -723,7 +775,9 @@ function updateHeader(){
 function renderPet(){
   const s=getStage(data.xp),next=STAGES.find(st=>st.minXp>data.xp)||STAGES[STAGES.length-1];
   const curMin=s.minXp,nextMin=next.minXp,range=nextMin-curMin,pct=range>0?Math.min(100,((data.xp-curMin)/range)*100):100;
-  document.getElementById('pet-emoji').textContent=s.emoji;
+  const em=document.getElementById('pet-emoji');
+  if(!isHatched()&&data.warmth>50)em.className='pet-emoji pulse';else em.className='pet-emoji';
+  em.textContent=s.emoji;
   document.getElementById('pet-stage').textContent=s.name;
   document.getElementById('pet-desc').textContent=s.desc;
   document.getElementById('pet-name').textContent=(data.settings&&data.settings.petName)||'Nexo';
@@ -740,6 +794,23 @@ function renderPet(){
   if(data.lastCheckin===today()){btn.textContent='✅ Check-in listo';btn.className='checkin-btn done';btn.disabled=true}
   else{btn.textContent='📅 Check-in diario';btn.className='checkin-btn';btn.disabled=false}
   document.getElementById('streak-num').textContent=data.streak||0;
+  // Warmth bar during egg phase
+  let warmthHtml=document.getElementById('warmth-area');
+  if(!isHatched()){
+    const w=data.warmth||0;
+    const save=getTotalSave();
+    const nextPet=PET_SHOP.filter(p=>save<p.threshold)[0];
+    if(!warmthHtml){
+      warmthHtml=document.createElement('div');warmthHtml.id='warmth-area';
+      document.querySelector('.pet-wrap').insertBefore(warmthHtml,document.querySelector('.pet-stats'));
+    }
+    warmthHtml.innerHTML=
+      '<div style="width:100%;max-width:320px;margin:8px 0">'+
+      '<div class="xp-top"><span>🔥 Calor: <strong style="color:#FF9F0A">'+w+'%</strong></span><span style="color:var(--text-tertiary)">Próxima mascota: '+(nextPet?nextPet.emoji+' '+nextPet.name+' ($'+Math.floor(nextPet.threshold/1000)+'k)':'🌟 Todas disponibles')+'</span></div>'+
+      '<div class="xp-track"><div class="xp-fill" style="width:'+w+'%;background:linear-gradient(90deg,#FF9F0A,#FF453A)"></div></div>'+
+      '<div style="font-size:0.65rem;color:var(--text-tertiary);margin-top:4px">➕ Gane calor con transacciones, check-ins, metas y pagos</div>'+
+      '</div>';
+  }else if(warmthHtml){warmthHtml.remove()}
 }
 function renderDashboard(){
   document.getElementById('month-label').textContent=MONTHS[selMonth]+' '+selYear;
@@ -803,10 +874,31 @@ function renderSettings(){
   document.getElementById('s-pettype').textContent=pt.name;
   document.getElementById('pet-type-icon').textContent=pt.emoji;
   const cont=document.getElementById('pet-type-options');
-  cont.innerHTML=Object.entries(PET_TYPES).map(([k,v])=>{
-    const act=k===(s.petType||'dragon');
-    return`<button type="button" style="padding:4px 8px;border-radius:var(--radius-sm);font-size:0.75rem;font-weight:600;font-family:var(--font);cursor:pointer;background:${act?'var(--primary)':'var(--bg)'};color:${act?'white':'var(--text-secondary)'};border:1px solid ${act?'var(--primary)':'var(--border-light)'};transition:all 0.15s var(--ease)" onclick="setPetType('${k}')">${v.emoji}</button>`
+  const collected=data.collectedPets||[];
+  cont.innerHTML=PET_SHOP.map(({id,name,emoji,threshold})=>{
+    const owned=collected.includes(id);
+    const act=id===(s.petType||'dragon');
+    const locked=!owned;
+    return`<button type="button" style="padding:4px 6px;border-radius:var(--radius-sm);font-size:0.7rem;font-weight:600;font-family:var(--font);cursor:pointer;background:${act?'var(--primary)':owned?'var(--income-muted)':'var(--bg)'};color:${act?'white':owned?'var(--income)':'var(--text-tertiary)'};border:1px solid ${act?'var(--primary)':owned?'var(--income-muted)':'var(--border-light)'};transition:all 0.15s var(--ease);opacity:${locked&&!act?'0.4':'1'}" onclick="${owned?`switchPet('${id}')`:`buyPet('${id}')`}" title="${owned?'Cambiar a '+name:locked?'Ahorren $'+Math.floor(threshold/1000)+'k para desbloquear':'Comprar '+name}">${locked?'🔒':emoji}</button>`
   }).join('');
+}
+function switchPet(id){
+  if(!PET_TYPES[id])return;
+  data.settings.petType=id;
+  saveData().then(()=>{renderAll();showToast(PET_TYPES[id].emoji+' '+PET_TYPES[id].name+' activado','success')});
+}
+async function buyPet(id){
+  const pp=PET_SHOP.find(p=>p.id===id);
+  if(!pp)return;
+  const save=getTotalSave();
+  if(save<pp.threshold){showToast('Necesitan ahorrar $'+Math.floor(pp.threshold/1000)+'k para '+pp.emoji,'warning');return}
+  if(!data.collectedPets)data.collectedPets=[];
+  if(data.collectedPets.includes(id)){switchPet(id);return}
+  data.collectedPets.push(id);
+  data.settings.petType=id;
+  const ok=await saveData();
+  if(ok){renderAll();showToast('🎉 ¡Nueva mascota: '+pp.emoji+' '+pp.name+'!','success',4000);try{navigator.vibrate([30,50,30])}catch(e){}}
+  else showToast('Error','error');
 }
 async function setPetType(type){
   if(!PET_TYPES[type])return;
@@ -871,13 +963,13 @@ function exportCSV(){
 
 // ===== TOAST =====
 let toastId=0;
-function showToast(msg,type){
+function showToast(msg,type,duration){
   const c=document.getElementById('toast-container'),id=++toastId;
   const icons={success:'✓',error:'✕',warning:'⚠'};
   const el=document.createElement('div');el.className='toast'+(type?' '+type:'')+' show';el.id='t-'+id;
   el.innerHTML=(icons[type]?'<span style="font-weight:700">'+icons[type]+'</span> '+msg:msg);
   c.appendChild(el);
-  setTimeout(()=>{const e=document.getElementById('t-'+id);if(e)e.remove()},2800);
+  setTimeout(()=>{const e=document.getElementById('t-'+id);if(e)e.remove()},duration||2800);
 }
 
 // ===== CONFIRM =====
