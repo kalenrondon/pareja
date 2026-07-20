@@ -15,7 +15,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
-<title>Finanzas Compartidas</title>
+<title>Finanzas Compartidas — Control de gastos para parejas</title>
+<meta property="og:title" content="Finanzas Compartidas">
+<meta property="og:description" content="App de finanzas compartidas para parejas. Control de gastos, presupuestos, deudas y metas de ahorro.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://pareja-lime.vercel.app/">
+<meta property="og:image" content="https://pareja-lime.vercel.app/icons/icon-512x512.png">
+<meta name="description" content="App de finanzas compartidas para parejas. Control de gastos, presupuestos, deudas y metas de ahorro.">
 <style>
 /* ===== DESIGN TOKENS ===== */
 :root {
@@ -727,22 +733,22 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
         </div>
         <div class="row-inline" style="display:flex;gap:10px">
           <div class="field" style="flex:1">
-            <label class="field-label">Monto ($)</label>
+            <label class="field-label" for="tx-amount-dash">Monto ($)</label>
             <input class="input num-input" type="text" id="tx-amount-dash" placeholder="0" inputmode="numeric">
           </div>
           <div class="field" style="flex:1">
-            <label class="field-label">Quién</label>
+            <label class="field-label" for="tx-who-dash">Quién</label>
             <select class="input" id="tx-who-dash"></select>
           </div>
         </div>
         <div class="field">
-          <label class="field-label">Categoría</label>
+          <label class="field-label" for="tx-category-dash">Categoría</label>
           <select class="input" id="tx-category-dash"></select>
           <div id="budget-hint-dash" class="field-hint" style="display:none"></div>
         </div>
         <div class="field">
-          <label class="field-label">Nota <span class="caption">(opcional)</span></label>
-          <textarea class="input" id="tx-note-dash" rows="2" placeholder="¿Para qué fue?"></textarea>
+            <label class="field-label" for="tx-note-dash">Nota <span class="caption">(opcional)</span></label>
+            <textarea class="input" id="tx-note-dash" rows="2" placeholder="¿Para qué fue?"></textarea>
         </div>
         <button type="button" class="btn btn-primary btn-full" onclick="addTransactionDash()">
           💳 Agregar movimiento
@@ -775,21 +781,21 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
         </div>
         <div class="row-inline" style="display:flex;gap:10px">
           <div class="field" style="flex:1">
-            <label class="field-label">Monto ($)</label>
+            <label class="field-label" for="tx-amount">Monto ($)</label>
             <input class="input num-input" type="text" id="tx-amount" placeholder="0" inputmode="numeric">
           </div>
           <div class="field" style="flex:1">
-            <label class="field-label">Quién</label>
+            <label class="field-label" for="tx-who">Quién</label>
             <select class="input" id="tx-who"></select>
           </div>
         </div>
         <div class="field">
-          <label class="field-label">Categoría</label>
+          <label class="field-label" for="tx-category">Categoría</label>
           <select class="input" id="tx-category"></select>
           <div id="budget-hint" class="field-hint" style="display:none"></div>
         </div>
         <div class="field">
-          <label class="field-label">Nota <span class="caption">(opcional)</span></label>
+          <label class="field-label" for="tx-note">Nota <span class="caption">(opcional)</span></label>
           <textarea class="input" id="tx-note" rows="2" placeholder="¿Para qué fue?"></textarea>
         </div>
         <button type="button" class="btn btn-primary btn-full" onclick="addTransaction()">
@@ -927,21 +933,21 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
   </div>
   <div style="display:flex;gap:10px">
     <div class="field" style="flex:1">
-      <label class="field-label">Monto ($)</label>
+      <label class="field-label" for="tx-amount-sheet">Monto ($)</label>
       <input class="input num-input" type="text" id="tx-amount-sheet" placeholder="0" inputmode="numeric">
     </div>
     <div class="field" style="flex:1">
-      <label class="field-label">Quién</label>
+      <label class="field-label" for="tx-who-sheet">Quién</label>
       <select class="input" id="tx-who-sheet"></select>
     </div>
   </div>
   <div class="field">
-    <label class="field-label">Categoría</label>
+    <label class="field-label" for="tx-category-sheet">Categoría</label>
     <select class="input" id="tx-category-sheet"></select>
     <div id="budget-hint-sheet" class="field-hint" style="display:none"></div>
   </div>
   <div class="field">
-    <label class="field-label">Nota <span class="caption">(opcional)</span></label>
+    <label class="field-label" for="tx-note-sheet">Nota <span class="caption">(opcional)</span></label>
     <textarea class="input" id="tx-note-sheet" rows="2" placeholder="¿Para qué fue?"></textarea>
   </div>
   <button type="button" class="btn btn-primary btn-full" onclick="addTransactionSheet()">
@@ -955,15 +961,15 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
     <h2>Configuración</h2>
     <div class="modal-desc">Nombres y preferencias</div>
     <div class="field">
-      <label class="field-label">Nombre de persona 1</label>
+      <label class="field-label" for="settings-name1">Nombre de persona 1</label>
       <input class="input" type="text" id="settings-name1" maxlength="30">
     </div>
     <div class="field">
-      <label class="field-label">Nombre de persona 2</label>
+      <label class="field-label" for="settings-name2">Nombre de persona 2</label>
       <input class="input" type="text" id="settings-name2" maxlength="30">
     </div>
     <div class="field">
-      <label class="field-label">Día límite para aportar a metas</label>
+      <label class="field-label" for="settings-deadline">Día límite para aportar a metas</label>
       <input class="input" type="number" id="settings-deadline" min="1" max="28" value="15">
     </div>
     <button type="button" class="btn btn-primary btn-full" onclick="saveNames()">Guardar</button>
@@ -998,7 +1004,7 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
 </div>
 
 <!-- Toast Container -->
-<div class="toast-container" id="toast-container"></div>
+<div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="true"></div>
 
 <script>
 // ===== CONSTANTS =====
@@ -1204,28 +1210,21 @@ function renderFair(){
     <div class="fs-card"><div class="fs-label">Total</div><div class="fs-val">${fmt(fs.tot)}</div></div>
   </div>${res}`
 }
-function renderWho(){const s=document.getElementById('tx-who');const p1=(data.names&&data.names.person1)||'P1',p2=(data.names&&data.names.person2)||'P2';s.innerHTML=`<option value="person1">${esc(p1)}</option><option value="person2">${esc(p2)}</option><option value="both">Ambos</option>`}
-function renderWhoSheet(){const s=document.getElementById('tx-who-sheet');const p1=(data.names&&data.names.person1)||'P1',p2=(data.names&&data.names.person2)||'P2';s.innerHTML=`<option value="person1">${esc(p1)}</option><option value="person2">${esc(p2)}</option><option value="both">Ambos</option>`}
-function renderWhoDash(){const s=document.getElementById('tx-who-dash');const p1=(data.names&&data.names.person1)||'P1',p2=(data.names&&data.names.person2)||'P2';s.innerHTML=`<option value="person1">${esc(p1)}</option><option value="person2">${esc(p2)}</option><option value="both">Ambos</option>`}
-function renderCat(){
-  const s=document.getElementById('tx-category'),c=CATEGORIES[txType]||CATEGORIES.expense;
-  s.innerHTML=c.map(c=>`<option value="${c}">${catIcon(c)} ${c.charAt(0).toUpperCase()+c.slice(1)}</option>`).join('');
-  updateHint();
+function renderWhoFor(id){
+  const s=document.getElementById(id),p1=(data.names&&data.names.person1)||'P1',p2=(data.names&&data.names.person2)||'P2';
+  if(s)s.innerHTML=`<option value="person1">${esc(p1)}</option><option value="person2">${esc(p2)}</option><option value="both">Ambos</option>`;
 }
-function renderCatSheet(){
-  const s=document.getElementById('tx-category-sheet'),c=CATEGORIES[txTypeSheet]||CATEGORIES.expense;
+function renderCatFor(id,typeVal,hintId){
+  const s=document.getElementById(id);
+  if(!s)return;
+  const c=CATEGORIES[typeVal]||CATEGORIES.expense;
   s.innerHTML=c.map(c=>`<option value="${c}">${catIcon(c)} ${c.charAt(0).toUpperCase()+c.slice(1)}</option>`).join('');
-  updateHintSheet();
+  if(hintId)updateHintFor(id,hintId,typeVal);
 }
-function renderCatDash(){
-  const s=document.getElementById('tx-category-dash'),c=CATEGORIES[txType]||CATEGORIES.expense;
-  s.innerHTML=c.map(c=>`<option value="${c}">${catIcon(c)} ${c.charAt(0).toUpperCase()+c.slice(1)}</option>`).join('');
-  updateHintDash();
-}
-function updateHint(){
-  const s=document.getElementById('tx-category'),h=document.getElementById('budget-hint');
-  const isExp=txType==='expense';
-  if(!isExp||!s){h.style.display='none';return}
+function updateHintFor(catId,hintId,typeVal){
+  const s=document.getElementById(catId),h=document.getElementById(hintId);
+  const isExp=typeVal==='expense';
+  if(!isExp||!s||!h){if(h)h.style.display='none';return}
   const cat=s.value,buds=getBuds(),lim=buds[cat];if(!lim){h.style.display='none';return}
   const sp=expByC(selYear,selMonth)[cat]||0,pct=lim>0?(sp/lim)*100:0;
   h.style.display='block';
@@ -1233,28 +1232,9 @@ function updateHint(){
   else if(pct>=80)h.innerHTML=`⚠️ <strong>${fmt(sp)}</strong> de <strong>${fmt(lim)}</strong> — <span style="color:var(--warning)">cerca del límite</span>`;
   else h.innerHTML=`📊 <strong>${fmt(sp)}</strong> de <strong>${fmt(lim)}</strong> (${pct.toFixed(0)}%)`;
 }
-function updateHintSheet(){
-  const s=document.getElementById('tx-category-sheet'),h=document.getElementById('budget-hint-sheet');
-  const isExp=txTypeSheet==='expense';
-  if(!isExp||!s){h.style.display='none';return}
-  const cat=s.value,buds=getBuds(),lim=buds[cat];if(!lim){h.style.display='none';return}
-  const sp=expByC(selYear,selMonth)[cat]||0,pct=lim>0?(sp/lim)*100:0;
-  h.style.display='block';
-  if(pct>=100)h.innerHTML=`⚠️ <strong>${fmt(sp)}</strong> de <strong>${fmt(lim)}</strong> — <span style="color:var(--expense)">excedido</span>`;
-  else if(pct>=80)h.innerHTML=`⚠️ <strong>${fmt(sp)}</strong> de <strong>${fmt(lim)}</strong> — <span style="color:var(--warning)">cerca del límite</span>`;
-  else h.innerHTML=`📊 <strong>${fmt(sp)}</strong> de <strong>${fmt(lim)}</strong> (${pct.toFixed(0)}%)`;
-}
-function updateHintDash(){
-  const s=document.getElementById('tx-category-dash'),h=document.getElementById('budget-hint-dash');
-  const isExp=txType==='expense';
-  if(!isExp||!s){h.style.display='none';return}
-  const cat=s.value,buds=getBuds(),lim=buds[cat];if(!lim){h.style.display='none';return}
-  const sp=expByC(selYear,selMonth)[cat]||0,pct=lim>0?(sp/lim)*100:0;
-  h.style.display='block';
-  if(pct>=100)h.innerHTML=`⚠️ <strong>${fmt(sp)}</strong> de <strong>${fmt(lim)}</strong> — <span style="color:var(--expense)">excedido</span>`;
-  else if(pct>=80)h.innerHTML=`⚠️ <strong>${fmt(sp)}</strong> de <strong>${fmt(lim)}</strong> — <span style="color:var(--warning)">cerca del límite</span>`;
-  else h.innerHTML=`📊 <strong>${fmt(sp)}</strong> de <strong>${fmt(lim)}</strong> (${pct.toFixed(0)}%)`;
-}
+var renderWho=()=>renderWhoFor('tx-who'),renderWhoSheet=()=>renderWhoFor('tx-who-sheet'),renderWhoDash=()=>renderWhoFor('tx-who-dash');
+var renderCat=()=>renderCatFor('tx-category',txType,'budget-hint'),renderCatSheet=()=>renderCatFor('tx-category-sheet',txTypeSheet,'budget-hint-sheet'),renderCatDash=()=>renderCatFor('tx-category-dash',txType,'budget-hint-dash');
+var updateHint=()=>updateHintFor('tx-category','budget-hint',txType),updateHintSheet=()=>updateHintFor('tx-category-sheet','budget-hint-sheet',txTypeSheet),updateHintDash=()=>updateHintFor('tx-category-dash','budget-hint-dash',txType);
 function renderTxs(){
   const list=document.getElementById('history-list');
   const t=[...txsOf(selYear,selMonth)];
@@ -1375,19 +1355,19 @@ async function addTxCommon(amount,who,cat,note,t){
 async function addTransaction(){
   const a=rawVal(document.getElementById('tx-amount')),w=document.getElementById('tx-who').value,c=document.getElementById('tx-category').value,n=document.getElementById('tx-note').value.trim();
   const ok=await addTxCommon(a,w,c,n);
-  if(ok){document.getElementById('tx-amount').value='';document.getElementById('tx-note').value='';showToast('Movimiento agregado ✅','success')}
+  if(ok){vibe();document.getElementById('tx-amount').value='';document.getElementById('tx-note').value='';showToast('Movimiento agregado ✅','success')}
 }
 async function addTransactionSheet(){
   const a=rawVal(document.getElementById('tx-amount-sheet')),w=document.getElementById('tx-who-sheet').value,c=document.getElementById('tx-category-sheet').value,n=document.getElementById('tx-note-sheet').value.trim();
   const ok=await addTxCommon(a,w,c,n,txTypeSheet);
-  if(ok){document.getElementById('tx-amount-sheet').value='';document.getElementById('tx-note-sheet').value='';closeTxSheet();showToast('Movimiento agregado ✅','success')}
+  if(ok){vibe();document.getElementById('tx-amount-sheet').value='';document.getElementById('tx-note-sheet').value='';closeTxSheet();showToast('Movimiento agregado ✅','success')}
 }
 async function addTransactionDash(){
   const a=rawVal(document.getElementById('tx-amount-dash')),w=document.getElementById('tx-who-dash').value,c=document.getElementById('tx-category-dash').value,n=document.getElementById('tx-note-dash').value.trim();
   const ok=await addTxCommon(a,w,c,n);
-  if(ok){document.getElementById('tx-amount-dash').value='';document.getElementById('tx-note-dash').value='';showToast('Movimiento agregado ✅','success')}
+  if(ok){vibe();document.getElementById('tx-amount-dash').value='';document.getElementById('tx-note-dash').value='';showToast('Movimiento agregado ✅','success')}
 }
-function confirmDelTx(id){showConfirm('¿Eliminar este movimiento?',async()=>{data.transactions=data.transactions.filter(t=>t.id!==id);const ok=await saveData();if(ok){renderAll();showToast('Eliminado','success')}else showToast('Error','error')})}
+function confirmDelTx(id){showConfirm('¿Eliminar este movimiento?',async()=>{data.transactions=data.transactions.filter(t=>t.id!==id);const ok=await saveData();if(ok){vibe(30);renderAll();showToast('Eliminado','success')}else showToast('Error','error')})}
 async function addDebt(){
   const n=document.getElementById('debt-name').value.trim(),t=rawVal(document.getElementById('debt-total'));
   if(!n){showToast('Escriba el nombre','error');return}if(!t||t<=0){showToast('Monto inválido','error');return}
@@ -1483,9 +1463,14 @@ function applyTheme(){
   if(sw){sw.classList.toggle('on',dark);sw.setAttribute('aria-checked',dark)}
 }
 
+// ===== HAPTIC =====
+function vibe(p){
+  try{if(navigator.vibrate)navigator.vibrate(p||10)}catch(e){}
+}
+
 // ===== EXPORT =====
 function exportCSV(){
-  const txs=getTxs();if(!txs.length){showToast('Sin datos','error');return}
+  const txs=txsOf(selYear,selMonth);if(!txs.length){showToast('Sin datos este mes','error');return}
   const p1=(data.names&&data.names.person1)||'P1',p2=(data.names&&data.names.person2)||'P2';
   const bom='\uFEFF',rows=[['Fecha','Tipo','Monto','Quién','Categoría','Nota'].join(',')];
   [...txs].sort((a,b)=>new Date(b.date)-new Date(a.date)).forEach(t=>{
@@ -1493,8 +1478,8 @@ function exportCSV(){
     rows.push([t.date,t.type,t.amount,who,t.category,'"'+note+'"'].join(','))
   });
   const blob=new Blob([bom+rows.join('\n')],{type:'text/csv;charset=utf-8;'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='finanzas_'+new Date().toISOString().split('T')[0]+'.csv';a.click();URL.revokeObjectURL(a.href);
-  showToast('CSV descargado ✅','success')
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='finanzas_'+MONTHS[selMonth]+'_'+selYear+'.csv';a.click();URL.revokeObjectURL(a.href);
+  vibe(20);showToast('CSV descargado ✅','success')
 }
 
 // ===== MODALS & SHEETS =====
