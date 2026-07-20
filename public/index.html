@@ -1331,9 +1331,11 @@ function updateHint(){const c=document.getElementById('tx-cat'),h=document.getEl
 // ===== STAGES MODAL =====
 function openStages(){
   const s=getStage(data.xp);
-  document.getElementById('stages-list').innerHTML=STAGES.map(st=>{
+  const pt=getPetType();
+  document.getElementById('stages-list').innerHTML=STAGES.map((st,i)=>{
     const unlocked=data.xp>=st.minXp;
-    return`<div class="stage-row"><div class="stage-emoji${st===s?' stage-cur':''}">${st===s?'⭐':unlocked?'✅':st.emoji}</div><div class="stage-info"><div class="stage-name${st===s?' stage-cur':''}">${st.name}</div><div class="stage-xp">${st.minXp} XP${st===s?' · Actual':unlocked?' · Desbloqueada':''}</div></div></div>`
+    const em=pt.evo[i]||pt.emoji;
+    return`<div class="stage-row"><div class="stage-emoji${st===s?' stage-cur':''}">${st===s?'⭐':unlocked?'✅':em}</div><div class="stage-info"><div class="stage-name${st===s?' stage-cur':''}">${st.name}</div><div class="stage-xp">${st.minXp} XP${st===s?' · Actual':unlocked?' · Desbloqueada':''}</div></div></div>`
   }).join('');
   document.getElementById('stages-modal').classList.add('open')
 }
