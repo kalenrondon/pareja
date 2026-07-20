@@ -343,25 +343,42 @@ select.input option{background:var(--surface);color:var(--text-primary)}
 .month-today:hover{background:var(--primary-muted-2)}
 
 /* ===== BUDGETS ===== */
-.budget-item{padding:10px 0}
-.budget-item+.budget-item{border-top:1px solid var(--border-light)}
-.budget-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-.budget-header .name{font-size:0.8125rem;font-weight:500;display:flex;align-items:center;gap:5px}
-.budget-header .spend{font-size:0.75rem;color:var(--text-tertiary)}
-.budget-header .spend .over{color:var(--expense);font-weight:600}
-.budget-header .spend .warn{color:var(--warning);font-weight:600}
-.budget-bar{height:6px;background:var(--bg-tertiary);border-radius:3px;overflow:hidden}
-.budget-bar .fill{height:100%;border-radius:3px;transition:width 0.6s var(--ease)}
-.budget-bar .fill.ok{background:var(--income)}
-.budget-bar .fill.warn{background:var(--warning)}
-.budget-bar .fill.over{background:var(--expense)}
-.budget-edit{margin-top:4px;display:flex;align-items:center;gap:6px}
-.budget-edit .budget-inp{
-  width:90px;padding:3px 8px;border:1px solid var(--border-light);
-  border-radius:var(--radius-xs);font-size:0.75rem;
+.budgets-wrap{display:flex;flex-direction:column;gap:8px}
+.budget-item{
+  background:var(--bg);border-radius:var(--radius-lg);
+  padding:12px 14px;border:1px solid var(--border-light);
+  transition:all 0.2s var(--ease);
+}
+.budget-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.budget-header .name{font-size:0.8125rem;font-weight:600;display:flex;align-items:center;gap:6px}
+.budget-header .spend{font-size:0.75rem;color:var(--text-secondary);font-weight:500}
+.budget-bar{height:8px;background:var(--bg-tertiary);border-radius:4px;overflow:hidden;margin-bottom:6px}
+.budget-bar .fill{height:100%;border-radius:4px;transition:width 0.6s var(--ease)}
+.budget-bar .fill.ok{background:linear-gradient(90deg,var(--income),#4cd964)}
+.budget-bar .fill.warn{background:linear-gradient(90deg,var(--warning),#ffb340)}
+.budget-bar .fill.over{background:linear-gradient(90deg,var(--expense),#ff6b5e)}
+.budget-footer{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.budget-footer .status{padding:2px 8px;border-radius:12px;font-size:0.6875rem;font-weight:600}
+.budget-footer .status.over{background:var(--expense-muted);color:var(--expense)}
+.budget-footer .status.warn{background:var(--warning-muted);color:var(--warning)}
+.budget-footer .status.ok{background:var(--income-muted);color:var(--income)}
+.budget-footer .remaining{font-size:0.6875rem;color:var(--text-tertiary)}
+.budget-edit-btn{
+  width:28px;height:28px;border-radius:var(--radius-xs);
+  display:flex;align-items:center;justify-content:center;
+  background:none;border:1px solid var(--border-light);color:var(--text-tertiary);
+  cursor:pointer;transition:all 0.15s var(--ease);font-family:var(--font);font-size:0.75rem;
+}
+.budget-edit-btn:hover{background:var(--surface-hover);color:var(--text-primary);border-color:var(--border)}
+.budget-edit-inp-wrap{display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--border-light)}
+.budget-edit-inp-wrap.open{display:flex;align-items:center;gap:6px}
+.budget-edit-inp-wrap .budget-inp{
+  width:100px;padding:5px 10px;border:1px solid var(--border-light);
+  border-radius:var(--radius-sm);font-size:0.8125rem;
   background:var(--bg);color:var(--text-primary);font-family:var(--font);
 }
-.budget-edit .budget-inp:focus{border-color:var(--primary);outline:none}
+.budget-edit-inp-wrap .budget-inp:focus{border-color:var(--primary);outline:none}
+.budget-edit-inp-wrap .caption{font-size:0.75rem;color:var(--text-tertiary)}
 
 /* ===== FAIR SPLIT ===== */
 .fs-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:10px 0}
@@ -1178,21 +1195,32 @@ function renderBuds(){
   if(ov&&nr)hint+=' · ';
   if(nr)hint+=nr+' cerca'+(nr>1?'s':'');
   tot.textContent=hint?'⚠️ '+hint:'';
-  list.innerHTML=bd.map(b=>{
+  list.innerHTML='<div class="budgets-wrap">'+bd.map(b=>{
     const cls=b.pct>=100?'over':b.pct>=80?'warn':'ok';
-    const txt=b.pct>=100?`<span class="over">Excedido</span>`:b.pct>=80?`<span class="warn">${b.pct.toFixed(0)}%</span>`:`${b.pct.toFixed(0)}%`;
+    const rem=b.lim-b.sp,remTxt=rem>=0?fmt(rem):'-'+fmt(Math.abs(rem));
+    const pctDisp=Math.min(b.pct,100).toFixed(0);
     return`<div class="budget-item">
       <div class="budget-header">
         <span class="name">${catIcon(b.cat)} ${esc(b.cat)}</span>
-        <span class="spend">${fmt(b.sp)} / ${fmt(b.lim)} ${txt}</span>
+        <span class="spend">${fmt(b.sp)} / ${fmt(b.lim)}</span>
       </div>
-      <div class="budget-bar"><div class="fill ${cls}" style="width:${Math.min(b.pct,100)}%"></div></div>
-      <div class="budget-edit">
-        <span class="caption">Editar:</span>
-        <input class="budget-inp num-input" type="text" id="budget-inp-${b.cat}" value="${b.lim}" inputmode="numeric" onchange="updBud('${b.cat}',this.value)">
+      <div class="budget-bar"><div class="fill ${cls}" style="width:${pctDisp}%"></div></div>
+      <div class="budget-footer">
+        <span class="status ${cls}">${cls==='over'?'Excedido':cls==='warn'?b.pct.toFixed(0)+'%':pctDisp+'%'}</span>
+        <span class="remaining">${rem>=0?'Restan: '+remTxt:'Exceso: '+remTxt}</span>
+        <button type="button" class="budget-edit-btn" onclick="toggleBudEdit('${b.cat}')" aria-label="Editar presupuesto">✎</button>
+      </div>
+      <div class="budget-edit-inp-wrap" id="budget-edit-${b.cat}">
+        <span class="caption">Límite:</span>
+        <input class="budget-inp num-input" type="text" value="${b.lim}" inputmode="numeric" onchange="updBud('${b.cat}',this.value)">
+        <button type="button" class="btn btn-primary btn-xs" onclick="updBud('${b.cat}',document.querySelector('#budget-edit-${b.cat} .budget-inp').value)">OK</button>
       </div>
     </div>`
-  }).join('')
+  }).join('')+'</div>'
+}
+function toggleBudEdit(cat){
+  const w=document.getElementById('budget-edit-'+cat);
+  if(w)w.classList.toggle('open');
 }
 function renderFair(){
   const el=document.getElementById('fair-split');
