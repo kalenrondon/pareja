@@ -695,6 +695,35 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
         <button class="month-today" onclick="goToCurrentMonth()">Hoy</button>
       </div>
       <div class="balance-grid" id="balance-grid"></div>
+      <div class="card mb-2" id="tx-form-card">
+        <h3 style="margin-bottom:12px">➕ Nuevo movimiento</h3>
+        <div class="toggle-group mb-1" id="tx-type-toggle-dash">
+          <button class="toggle-opt active-income" data-value="income" onclick="setTxTypeDash('income')">💰 Ingreso</button>
+          <button class="toggle-opt" data-value="expense" onclick="setTxTypeDash('expense')">💸 Gasto</button>
+        </div>
+        <div class="row-inline" style="display:flex;gap:10px">
+          <div class="field" style="flex:1">
+            <label class="field-label">Monto ($)</label>
+            <input class="input num-input" type="text" id="tx-amount-dash" placeholder="0" inputmode="numeric">
+          </div>
+          <div class="field" style="flex:1">
+            <label class="field-label">Quién</label>
+            <select class="input" id="tx-who-dash"></select>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Categoría</label>
+          <select class="input" id="tx-category-dash"></select>
+          <div id="budget-hint-dash" class="field-hint" style="display:none"></div>
+        </div>
+        <div class="field">
+          <label class="field-label">Nota <span class="caption">(opcional)</span></label>
+          <textarea class="input" id="tx-note-dash" rows="2" placeholder="¿Para qué fue?"></textarea>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="addTransactionDash()">
+          💳 Agregar movimiento
+        </button>
+      </div>
       <div class="card mb-2" id="budgets-summary">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
           <h3>Presupuestos</h3>
@@ -1046,7 +1075,7 @@ function updateHeaderSub(){
 }
 
 // ===== RENDER =====
-function renderAll(){renderMonth();renderBalance();renderBuds();renderFair();renderTxs();renderDebts();renderGoals();renderChart();renderWho();renderCat();renderWhoSheet();renderCatSheet();updateHeaderSub();}
+function renderAll(){renderMonth();renderBalance();renderBuds();renderFair();renderTxs();renderDebts();renderGoals();renderChart();renderWho();renderCat();renderWhoSheet();renderCatSheet();renderWhoDash();renderCatDash();updateHeaderSub();}
 function renderMonth(){document.getElementById('month-label').textContent=MONTHS[selMonth]+' '+selYear}
 function renderBalance(){
   const inc=getInc(selYear,selMonth),exp=getExp(selYear,selMonth),av=inc-exp;
@@ -1098,6 +1127,7 @@ function renderFair(){
 }
 function renderWho(){const s=document.getElementById('tx-who');const p1=(data.names&&data.names.person1)||'P1',p2=(data.names&&data.names.person2)||'P2';s.innerHTML=`<option value="person1">${esc(p1)}</option><option value="person2">${esc(p2)}</option><option value="both">Ambos</option>`}
 function renderWhoSheet(){const s=document.getElementById('tx-who-sheet');const p1=(data.names&&data.names.person1)||'P1',p2=(data.names&&data.names.person2)||'P2';s.innerHTML=`<option value="person1">${esc(p1)}</option><option value="person2">${esc(p2)}</option><option value="both">Ambos</option>`}
+function renderWhoDash(){const s=document.getElementById('tx-who-dash');const p1=(data.names&&data.names.person1)||'P1',p2=(data.names&&data.names.person2)||'P2';s.innerHTML=`<option value="person1">${esc(p1)}</option><option value="person2">${esc(p2)}</option><option value="both">Ambos</option>`}
 function renderCat(){
   const s=document.getElementById('tx-category'),c=CATEGORIES[txType]||CATEGORIES.expense;
   s.innerHTML=c.map(c=>`<option value="${c}">${catIcon(c)} ${c.charAt(0).toUpperCase()+c.slice(1)}</option>`).join('');
@@ -1107,6 +1137,11 @@ function renderCatSheet(){
   const s=document.getElementById('tx-category-sheet'),c=CATEGORIES[txTypeSheet]||CATEGORIES.expense;
   s.innerHTML=c.map(c=>`<option value="${c}">${catIcon(c)} ${c.charAt(0).toUpperCase()+c.slice(1)}</option>`).join('');
   updateHintSheet();
+}
+function renderCatDash(){
+  const s=document.getElementById('tx-category-dash'),c=CATEGORIES[txType]||CATEGORIES.expense;
+  s.innerHTML=c.map(c=>`<option value="${c}">${catIcon(c)} ${c.charAt(0).toUpperCase()+c.slice(1)}</option>`).join('');
+  updateHintDash();
 }
 function updateHint(){
   const s=document.getElementById('tx-category'),h=document.getElementById('budget-hint');
@@ -1121,6 +1156,16 @@ function updateHint(){
 function updateHintSheet(){
   const s=document.getElementById('tx-category-sheet'),h=document.getElementById('budget-hint-sheet');
   if(txTypeSheet!=='expense'){h.style.display='none';return}
+  const cat=s.value,buds=getBuds(),lim=buds[cat];if(!lim){h.style.display='none';return}
+  const sp=expByC(selYear,selMonth)[cat]||0,pct=lim>0?(sp/lim)*100:0;
+  h.style.display='block';
+  if(pct>=100)h.innerHTML=`⚠️ <strong>${fmt(sp)}</strong> de <strong>${fmt(lim)}</strong> — <span style="color:var(--expense)">excedido</span>`;
+  else if(pct>=80)h.innerHTML=`⚠️ <strong>${fmt(sp)}</strong> de <strong>${fmt(lim)}</strong> — <span style="color:var(--warning)">cerca del límite</span>`;
+  else h.innerHTML=`📊 <strong>${fmt(sp)}</strong> de <strong>${fmt(lim)}</strong> (${pct.toFixed(0)}%)`;
+}
+function updateHintDash(){
+  const s=document.getElementById('tx-category-dash'),h=document.getElementById('budget-hint-dash');
+  if(txType!=='expense'){h.style.display='none';return}
   const cat=s.value,buds=getBuds(),lim=buds[cat];if(!lim){h.style.display='none';return}
   const sp=expByC(selYear,selMonth)[cat]||0,pct=lim>0?(sp/lim)*100:0;
   h.style.display='block';
@@ -1225,6 +1270,7 @@ function drawPie(e,tot){
 // ===== ACTIONS =====
 function setTxType(t){txType=t;document.querySelectorAll('#tx-type-toggle .toggle-opt').forEach(el=>{el.className='toggle-opt'+(el.dataset.value===t?(t==='income'?' active-income':' active-expense'):'')});renderCat()}
 function setTxTypeSheet(t){txTypeSheet=t;document.querySelectorAll('#tx-sheet-toggle .toggle-opt').forEach(el=>{el.className='toggle-opt'+(el.dataset.value===t?(t==='income'?' active-income':' active-expense'):'')});renderCatSheet()}
+function setTxTypeDash(t){txType=t;document.querySelectorAll('#tx-type-toggle-dash .toggle-opt').forEach(el=>{el.className='toggle-opt'+(el.dataset.value===t?(t==='income'?' active-income':' active-expense'):'')});renderCatDash()}
 async function addTxCommon(amount,who,cat,note){
   if(!amount||amount<=0){showToast('Ingrese un monto válido','error');return false}
   if(!data.names||!data.names.person1||!data.names.person2){showToast('Configure los nombres','error');return false}
@@ -1249,6 +1295,11 @@ async function addTransactionSheet(){
   const a=rawVal(document.getElementById('tx-amount-sheet')),w=document.getElementById('tx-who-sheet').value,c=document.getElementById('tx-category-sheet').value,n=document.getElementById('tx-note-sheet').value.trim();
   const ok=await addTxCommon(a,w,c,n);
   if(ok){document.getElementById('tx-amount-sheet').value='';document.getElementById('tx-note-sheet').value='';closeTxSheet();showToast('Movimiento agregado ✅','success')}
+}
+async function addTransactionDash(){
+  const a=rawVal(document.getElementById('tx-amount-dash')),w=document.getElementById('tx-who-dash').value,c=document.getElementById('tx-category-dash').value,n=document.getElementById('tx-note-dash').value.trim();
+  const ok=await addTxCommon(a,w,c,n);
+  if(ok){document.getElementById('tx-amount-dash').value='';document.getElementById('tx-note-dash').value='';showToast('Movimiento agregado ✅','success')}
 }
 function confirmDelTx(id){showConfirm('¿Eliminar este movimiento?',async()=>{data.transactions=data.transactions.filter(t=>t.id!==id);const ok=await saveData();if(ok){renderAll();showToast('Eliminado','success')}else showToast('Error','error')})}
 async function addDebt(){
@@ -1424,6 +1475,7 @@ if('serviceWorker'in navigator){navigator.serviceWorker.register('/sw.js').catch
 document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('tx-category').addEventListener('change',updateHint);
   document.getElementById('tx-category-sheet').addEventListener('change',updateHintSheet);
+  document.getElementById('tx-category-dash').addEventListener('change',updateHintDash);
   document.getElementById('settings-modal').addEventListener('click',function(e){if(e.target===this)closeSettings()});
   document.getElementById('gh-modal').addEventListener('click',function(e){if(e.target===this)closeGH()});
 })
