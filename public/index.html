@@ -461,18 +461,16 @@ select.input option{background:var(--surface);color:var(--text-primary)}
 }
 .debt-act input:focus{border-color:var(--primary);outline:none}
 
-/* ===== GOALS ===== */
-.goals-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.goal-card{
+/* ===== AHORROS ===== */
+.ahorros-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ahorro-card{
   background:var(--bg);border-radius:var(--radius-xl);
   padding:14px;border:1px solid var(--border-light);
   transition:all 0.2s var(--ease);
 }
-.goal-name{font-size:0.8rem;font-weight:600;margin-bottom:4px;color:var(--text-primary)}
-.goal-deadline{font-size:0.68rem;color:var(--text-tertiary);margin-bottom:6px;display:flex;justify-content:space-between}
-.goal-deadline .urgent{color:var(--warning);font-weight:600}
-.goal-deadline .over{color:var(--expense);font-weight:600}
-.goal-deadline .met{color:var(--income)}
+.ahorro-name{font-size:0.8125rem;font-weight:600;margin-bottom:4px;color:var(--text-primary);display:flex;align-items:center;justify-content:space-between}
+.ahorro-name .del-ahorro{background:none;border:none;color:var(--text-tertiary);cursor:pointer;padding:2px 4px;font-size:0.75rem;border-radius:4px;font-family:var(--font)}
+.ahorro-name .del-ahorro:hover{color:var(--expense);background:var(--expense-muted)}
 .jar-wrap{margin-bottom:6px}
 .jar-lid{
   width:45%;height:4px;
@@ -492,23 +490,19 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
   border-radius:0 0 6px 6px;transition:width 0.6s var(--ease);
 }
 .jar-body .fill.done{background:linear-gradient(180deg,#4CAF50,var(--success))}
-.goal-nums{display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text-tertiary);margin:4px 0}
-.goal-nums strong{color:var(--text-secondary)}
-.goal-act{display:flex;gap:5px;margin-top:6px}
-.goal-act input{
+.ahorro-nums{display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text-tertiary);margin:4px 0}
+.ahorro-nums strong{color:var(--text-secondary)}
+.ahorro-act{display:flex;gap:5px;margin-top:6px;align-items:center}
+.ahorro-act input{
   flex:1;min-width:0;padding:4px 7px;
   border:1px solid var(--border-light);border-radius:var(--radius-xs);
   font-size:0.75rem;background:var(--surface);color:var(--text-primary);width:55px;font-family:var(--font);
 }
-.goal-act input:focus{border-color:var(--primary);outline:none}
-.goal-target-inp{width:55px;padding:2px 5px;border:1px solid var(--border-light);border-radius:4px;font-size:0.7rem;background:var(--surface);color:var(--text-primary);font-family:var(--font)}
-.goal-target-inp:focus{border-color:var(--primary);outline:none}
-.gh-btn{
-  font-size:0.68rem;padding:2px 7px;background:none;
-  border:1px solid var(--border-light);border-radius:4px;
-  color:var(--text-tertiary);cursor:pointer;font-family:var(--font);
-}
-.gh-btn:hover{border-color:var(--text-tertiary);color:var(--text-secondary)}
+.ahorro-act input:focus{border-color:var(--primary);outline:none}
+.ahorro-target-inp{width:55px;padding:2px 5px;border:1px solid var(--border-light);border-radius:4px;font-size:0.7rem;background:var(--surface);color:var(--text-primary);font-family:var(--font)}
+.ahorro-target-inp:focus{border-color:var(--primary);outline:none}
+.ahorro-pct{font-size:0.6875rem;color:var(--text-tertiary)}
+.ah-cta{display:flex;gap:4px;margin-top:8px;align-items:center}
 
 /* ===== CHART ===== */
 .chart-wrap{display:flex;flex-direction:column;align-items:center;gap:12px}
@@ -656,7 +650,7 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
 .tx-del::after{content:'';position:absolute;inset:-8px;border-radius:inherit}
 .month-nav-btn{position:relative}
 .month-nav-btn::after{content:'';position:absolute;inset:-5px}
-.goal-act button,.debt-act button,.gh-btn{min-height:36px;min-width:36px}
+.ahorro-act button,.debt-act button,.gh-btn{min-height:36px;min-width:36px}
 
 /* ===== RESPONSIVE ===== */
 @media(max-width:420px){
@@ -664,13 +658,13 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
   .balance-grid{gap:8px}
   .balance-card{padding:12px 14px}
   .balance-card .bl-amount{font-size:1.15rem}
-  .goals-grid{grid-template-columns:1fr}
+  .ahorros-grid{grid-template-columns:1fr}
   .fs-grid{grid-template-columns:1fr}
   .header-left h1{font-size:1rem}
 }
 @media(min-width:768px){
   .container{max-width:640px;padding:0 24px}
-  .goals-grid{grid-template-columns:1fr 1fr}
+  .ahorros-grid{grid-template-columns:1fr 1fr}
   #fab{bottom:calc(var(--nav-height) + 24px);right:24px}
 }
 @media(min-width:1024px){
@@ -770,13 +764,6 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
           💳 Agregar movimiento
         </button>
       </div>
-      <div class="card mb-2" id="budgets-summary">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <h3>Presupuestos</h3>
-          <span class="caption" id="budget-total-hint"></span>
-        </div>
-        <div id="budgets-list"></div>
-      </div>
       <div class="card mb-2" id="fair-split-card">
         <h3 style="margin-bottom:8px">⚖️ Reparto</h3>
         <div id="fair-split"></div>
@@ -824,6 +811,17 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
       </div>
     </div>
 
+    <!-- TAB: Budgets -->
+    <div class="tab-content" id="tab-budgets">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <h3>Presupuestos</h3>
+          <span class="caption" id="budget-total-hint"></span>
+        </div>
+        <div id="budgets-list"></div>
+      </div>
+    </div>
+
     <!-- TAB: Debts -->
     <div class="tab-content" id="tab-debts">
       <div class="card mb-2" id="debts-list-card">
@@ -840,69 +838,14 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
       </div>
     </div>
 
-    <!-- TAB: Goals -->
-    <div class="tab-content" id="tab-goals">
+    <!-- TAB: Ahorros -->
+    <div class="tab-content" id="tab-ahorros">
       <div class="card">
-        <h3 style="margin-bottom:12px">Metas de ahorro</h3>
-        <div class="goals-grid" id="goals-grid"></div>
-      </div>
-    </div>
-
-    <!-- TAB: Settings -->
-    <div class="tab-content" id="tab-settings">
-      <div class="card mb-2">
-        <div class="settings-item">
-          <div class="si-left">
-            <div class="si-icon">👤</div>
-            <div class="si-text">
-              <div class="si-title">Nombres</div>
-              <div class="si-sub" id="settings-names-sub">Sin configurar</div>
-            </div>
-          </div>
-          <button type="button" class="btn btn-ghost btn-sm" onclick="openSettings()">Editar</button>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h3>Alcancías</h3>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="addAhorro()">➕ Nueva</button>
         </div>
-        <div class="settings-item">
-          <div class="si-left">
-            <div class="si-icon">🌙</div>
-            <div class="si-text">
-              <div class="si-title">Modo oscuro</div>
-              <div class="si-sub">Alternar tema</div>
-            </div>
-          </div>
-          <button type="button" class="switch" id="dark-switch" onclick="toggleTheme()" role="switch" aria-checked="false">
-            <span class="switch-knob"></span>
-          </button>
-        </div>
-        <div class="settings-item">
-          <div class="si-left">
-            <div class="si-icon">📅</div>
-            <div class="si-text">
-              <div class="si-title">Día límite metas</div>
-              <div class="si-sub">Fecha tope para aportar cada mes</div>
-            </div>
-          </div>
-          <input class="budget-inp" type="number" id="settings-deadline-inp" min="1" max="28" value="15" style="width:60px;text-align:center" onchange="saveDeadline()">
-        </div>
-        <div class="settings-item">
-          <div class="si-left">
-            <div class="si-icon">📥</div>
-            <div class="si-text">
-              <div class="si-title">Exportar CSV</div>
-              <div class="si-sub">Descargar historial completo</div>
-            </div>
-          </div>
-          <button type="button" class="btn btn-ghost btn-sm" onclick="exportCSV()">Descargar</button>
-        </div>
-        <div class="settings-item">
-          <div class="si-left">
-            <div class="si-icon" style="color:var(--expense)">🔄</div>
-            <div class="si-text">
-              <div class="si-title" style="color:var(--danger)">Reiniciar datos</div>
-              <div class="si-sub">Eliminar toda la información</div>
-            </div>
-          </div>
-          <button type="button" class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="resetAll()">Reiniciar</button>
-        </div>
+        <div class="ahorros-grid" id="ahorros-grid"></div>
       </div>
     </div>
 
@@ -919,17 +862,17 @@ body.light .jar-body{background:rgba(0,0,0,0.03);border-color:var(--border)}
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
     <span>Movimientos</span>
   </button>
+  <button type="button" class="nav-item" data-tab="budgets" onclick="navigate('budgets')" role="tab" aria-selected="false" aria-label="Presupuestos">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <span>Presupuestos</span>
+  </button>
+  <button type="button" class="nav-item" data-tab="ahorros" onclick="navigate('ahorros')" role="tab" aria-selected="false" aria-label="Ahorros">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+    <span>Ahorros</span>
+  </button>
   <button type="button" class="nav-item" data-tab="debts" onclick="navigate('debts')" role="tab" aria-selected="false" aria-label="Deudas">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
     <span>Deudas</span>
-  </button>
-  <button type="button" class="nav-item" data-tab="goals" onclick="navigate('goals')" role="tab" aria-selected="false" aria-label="Metas">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-    <span>Metas</span>
-  </button>
-  <button type="button" class="nav-item" data-tab="settings" onclick="navigate('settings')" role="tab" aria-selected="false" aria-label="Ajustes">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-    <span>Ajustes</span>
   </button>
 </nav>
 
@@ -1035,12 +978,12 @@ const CAT_ICONS = {
 };
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const COLORS = ['#FF453A','#FF9F0A','#30D158','#64D2FF','#5E5CE6','#BF5AF2','#FF6482','#00C7BE','#FFD60A','#32D74B','#0A84FF','#6E6E73'];
-const TAB_NAMES = { dashboard:'Inicio', transactions:'Movimientos', debts:'Deudas', goals:'Metas', settings:'Ajustes' };
+const TAB_NAMES = { dashboard:'Inicio', transactions:'Movimientos', budgets:'Presupuestos', ahorros:'Ahorros', debts:'Deudas' };
 
 // ===== STATE =====
 let data = null, txType = 'income', txTypeSheet = 'income';
 let selMonth = null, selYear = null, curTab = 'dashboard';
-let confirmCb = null, ghGoal = null;
+let confirmCb = null;
 
 // ===== UTILITY =====
 function uid(){return Date.now().toString(36)+Math.random().toString(36).substr(2,6)}
@@ -1176,7 +1119,7 @@ function updateHeaderSub(){
 }
 
 // ===== RENDER =====
-function renderAll(){renderMonth();renderBalance();renderBuds();renderFair();renderTxs();renderDebts();renderGoals();renderChart();renderWho();renderCat();renderWhoSheet();renderCatSheet();renderWhoDash();renderCatDash();updateHeaderSub();}
+function renderAll(){renderMonth();renderBalance();renderBuds();renderFair();renderTxs();renderDebts();renderAhorros();renderChart();renderWho();renderCat();renderWhoSheet();renderCatSheet();renderWhoDash();renderCatDash();updateHeaderSub();}
 function renderMonth(){document.getElementById('month-label').textContent=MONTHS[selMonth]+' '+selYear}
 function renderBalance(){
   const inc=getInc(selYear,selMonth),exp=getExp(selYear,selMonth),av=inc-exp;
@@ -1212,8 +1155,8 @@ function renderBuds(){
       </div>
       <div class="budget-edit-inp-wrap" id="budget-edit-${b.cat}">
         <span class="caption">Límite:</span>
-        <input class="budget-inp num-input" type="text" value="${b.lim}" inputmode="numeric" onchange="updBud('${b.cat}',this.value)">
-        <button type="button" class="btn btn-primary btn-xs" onclick="updBud('${b.cat}',document.querySelector('#budget-edit-${b.cat} .budget-inp').value)">OK</button>
+        <input class="budget-inp num-input" type="text" value="${b.lim}" inputmode="numeric" onchange="updBud('${b.cat}',this.dataset.raw||this.value)">
+        <button type="button" class="btn btn-primary btn-xs" onclick="updBud('${b.cat}',(document.querySelector('#budget-edit-${b.cat} .budget-inp').dataset.raw||document.querySelector('#budget-edit-${b.cat} .budget-inp').value))">OK</button>
       </div>
     </div>`
   }).join('')+'</div>'
@@ -1305,36 +1248,82 @@ function renderDebts(){
     </div>`
   }).join('')
 }
-function renderGoals(){
-  const grid=document.getElementById('goals-grid'),g=(data&&data.goals)||[];
-  const dl=(data&&data.settings&&data.settings.goalDeadlineDay)||15;
-  const now=new Date(),today=now.getDate();
+function renderAhorros(){
+  const grid=document.getElementById('ahorros-grid'),g=(data&&data.goals)||[];
   grid.innerHTML=g.map(goal=>{
     const pct=goal.target>0?Math.min(100,(goal.saved/goal.target)*100):0,done=Number(goal.saved)>=Number(goal.target);
-    let dlHtml='';
-    if(!done){
-      if(today>dl)dlHtml=`<span class="over">⚠️ Vencida (día ${dl})</span>`;
-      else if(dl-today<=3)dlHtml=`<span class="urgent">🔔 Vence en ${dl-today}d (día ${dl})</span>`;
-      else dlHtml=`<span>Límite: día ${dl}</span>`
-    }else dlHtml=`<span class="met">✅ Cumplida</span>`;
-    return`<div class="goal-card">
-      <div class="goal-name">${esc(goal.name)}</div>
-      <div class="goal-deadline">${dlHtml}</div>
+    return`<div class="ahorro-card">
+      <div class="ahorro-name">
+        <span>${esc(goal.name)}</span>
+        <button type="button" class="del-ahorro" onclick="confirmDelAhorro(${goal.id})" aria-label="Eliminar">✕</button>
+      </div>
       <div class="jar-wrap">
         <div class="jar-lid"></div>
         <div class="jar-body"><div class="fill${done?' done':''}" style="width:${pct}%"></div></div>
       </div>
-      <div class="goal-nums"><span>Ahorrado: <strong>${fmt(goal.saved)}</strong></span><span>Meta: <strong>${fmt(goal.target)}</strong></span></div>
-      <div class="goal-nums">
-        <span><span class="caption">Meta: </span><input class="goal-target-inp num-input" type="text" id="goal-target-${goal.id}" value="${goal.target}" inputmode="numeric" onchange="updGoalT(${goal.id})"></span>
-        <span>${pct.toFixed(0)}% <button type="button" class="gh-btn" onclick="showGH(${goal.id})">📊</button></span>
+      <div class="ahorro-nums"><span>Ahorrado: <strong>${fmt(goal.saved)}</strong></span><span>Meta: <strong>${fmt(goal.target)}</strong></span></div>
+      <div class="ahorro-nums">
+        <span>${pct.toFixed(0)}%</span>
+        <span>
+          <input class="ahorro-target-inp num-input" type="text" id="ahorro-target-${goal.id}" value="${goal.target}" inputmode="numeric" onchange="updAhorroT(${goal.id})">
+          <button type="button" class="gh-btn" onclick="showAH(${goal.id})" aria-label="Historial">📊</button>
+        </span>
       </div>
-      <div class="goal-act">
-        <input class="num-input" type="text" id="goal-add-${goal.id}" placeholder="$ Aportar" inputmode="numeric">
-        <button type="button" class="btn btn-primary btn-xs" onclick="contGoal(${goal.id})">Aportar</button>
+      <div class="ahorro-act">
+        <input class="num-input" type="text" id="ahorro-add-${goal.id}" placeholder="$ Aportar" inputmode="numeric">
+        <button type="button" class="btn btn-primary btn-xs" onclick="contAhorro(${goal.id})">Aportar</button>
       </div>
     </div>`
-  }).join('')
+  }).join('');
+  if(!g.length)grid.innerHTML='<div class="empty"><div class="empty-icon">🏦</div><div class="empty-title">Sin alcancías</div><div class="empty-desc">Cree una nueva para empezar a ahorrar</div></div>'
+}
+function addAhorro(){
+  const name=prompt('Nombre de la alcancía (ej: Lavadora, Nevera, Viaje):');
+  if(!name||!name.trim())return;
+  if(!data.goals)data.goals=[];
+  const maxId=data.goals.reduce((m,g)=>Math.max(m,g.id),0);
+  data.goals.push({id:maxId+1,name:name.trim(),saved:0,target:100000});
+  showToast('Alcancía creada ✅','success');
+  data.goalContributions=(data.goalContributions||{});
+  saveData().then(renderAhorros)
+}
+function confirmDelAhorro(id){
+  showConfirm('¿Eliminar esta alcancía?',async()=>{
+    data.goals=data.goals.filter(g=>g.id!==id);
+    if(data.goalContributions)delete data.goalContributions[id];
+    const ok=await saveData();
+    if(ok){renderAhorros();showToast('Alcancía eliminada','success')}
+    else showToast('Error','error')
+  })
+}
+async function contAhorro(gid){
+  const inp=document.getElementById('ahorro-add-'+gid),a=rawVal(inp);
+  if(!a||a<=0){showToast('Monto inválido','error');return}
+  const g=data.goals.find(x=>x.id===gid);if(!g)return;const prev=g.saved;
+  if(g.saved>=g.target){showToast('Meta ya cumplida','warning');return}
+  g.saved=Math.min(g.saved+a,g.target);
+  if(!data.goalContributions)data.goalContributions={};
+  if(!data.goalContributions[gid])data.goalContributions[gid]=[];
+  data.goalContributions[gid].push({amount:a,date:new Date().toISOString().split('T')[0]});
+  const ok=await saveData();
+  if(ok){renderAhorros();inp.value='';showToast('Aportado a '+g.name+' ✅','success')}
+  else{g.saved=prev;data.goalContributions[gid].pop();showToast('Error','error')}
+}
+async function updAhorroT(gid){
+  const inp=document.getElementById('ahorro-target-'+gid),v=rawVal(inp);
+  if(!v||v<=0){showToast('Meta inválida','error');return}
+  const g=data.goals.find(x=>x.id===gid);if(!g)return;
+  g.target=v;if(g.saved>g.target)g.saved=g.target;
+  const ok=await saveData();if(ok)renderAhorros();else showToast('Error','error')
+}
+function showAH(gid){
+  const g=data.goals.find(x=>x.id===gid);
+  if(!g)return;
+  document.getElementById('gh-title').textContent=g.name;
+  const list=document.getElementById('gh-list'),c=(data.goalContributions&&data.goalContributions[gid])||[];
+  if(!c.length)list.innerHTML='<div class="empty"><div class="empty-desc">Sin aportes registrados</div></div>';
+  else list.innerHTML=c.slice().reverse().map(c=>`<div class="gh-item"><span class="gh-date">${fmtDate(c.date)}</span><span class="gh-amount">${fmt(c.amount)}</span></div>`).join('');
+  document.getElementById('gh-modal').classList.add('open')
 }
 function renderChart(){
   const c=document.getElementById('chart-container'),cats=expByC(selYear,selMonth),e=Object.entries(cats).filter(([,v])=>v>0);
@@ -1412,30 +1401,13 @@ async function payDebt(id){
   else showToast('Error','error')
 }
 function confirmDelDebt(id){showConfirm('¿Eliminar esta deuda?',async()=>{data.debts=data.debts.filter(d=>d.id!==id);const ok=await saveData();if(ok){renderAll();showToast('Deuda eliminada','success')}else showToast('Error','error')})}
-async function contGoal(gid){
-  const inp=document.getElementById('goal-add-'+gid),a=rawVal(inp);
-  if(!a||a<=0){showToast('Monto inválido','error');return}
-  const g=data.goals.find(x=>x.id===gid);if(!g)return;const prev=g.saved;
-  if(g.saved>=g.target){showToast('Meta ya cumplida','warning');return}
-  g.saved=Math.min(g.saved+a,g.target);
-  if(!data.goalContributions)data.goalContributions={};
-  if(!data.goalContributions[gid])data.goalContributions[gid]=[];
-  data.goalContributions[gid].push({amount:a,date:new Date().toISOString().split('T')[0]});
-  const ok=await saveData();
-  if(ok){renderAll();inp.value='';showToast('Aportado a '+g.name+' ✅','success')}
-  else{g.saved=prev;data.goalContributions[gid].pop();showToast('Error','error')}
-}
-async function updGoalT(gid){
-  const inp=document.getElementById('goal-target-'+gid),v=rawVal(inp);
-  if(!v||v<=0){showToast('Meta inválida','error');return}
-  const g=data.goals.find(x=>x.id===gid);if(!g)return;
-  g.target=v;if(g.saved>g.target)g.saved=g.target;
-  const ok=await saveData();if(ok)renderAll();else showToast('Error','error')
-}
 async function updBud(cat,v){
-  const a=parseInt(String(v).replace(/\./g,''));if(a<0)return;
+  const raw=String(v).replace(/\./g,'');
+  const a=parseInt(raw);if(a<0)return;
   if(!data.budgets)data.budgets={};data.budgets[cat]=a||0;
-  await saveData();renderBuds()
+  const ok=await saveData();
+  if(ok){renderBuds();showToast('Presupuesto actualizado ✅','success')}
+  else showToast('Error al guardar','error')
 }
 async function saveNames(){
   const n1=document.getElementById('settings-name1').value.trim(),n2=document.getElementById('settings-name2').value.trim(),dl=parseInt(document.getElementById('settings-deadline').value)||15;
@@ -1525,32 +1497,14 @@ function openSettings(){
   document.getElementById('settings-modal').classList.add('open')
 }
 function closeSettings(){document.getElementById('settings-modal').classList.remove('open')}
-function showGH(gid){
-  const g=data.goals.find(x=>x.id===gid);if(!g)return;ghGoal=gid;
-  const c=(data.goalContributions&&data.goalContributions[gid])||[];
-  document.getElementById('gh-title').textContent=g.name+' — Total: '+fmt(g.saved);
-  const l=document.getElementById('gh-list');
-  if(!c.length)l.innerHTML='<div class="empty" style="padding:16px"><div class="empty-desc">Sin aportes</div></div>';
-  else{
-    const s=[...c].sort((a,b)=>new Date(b.date)-new Date(a.date));
-    l.innerHTML=s.map(x=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-light);font-size:0.8125rem"><span style="color:var(--text-tertiary)">${fmtDate(x.date)}</span><span style="color:var(--income);font-weight:600">+${fmt(x.amount)}</span></div>`).join('');
-    l.innerHTML+=`<div style="text-align:right;padding-top:8px;font-size:0.8125rem">Total: <strong style="color:var(--income)">${fmt(c.reduce((s,x)=>s+Number(x.amount),0))}</strong></div>`
-  }
-  document.getElementById('gh-modal').classList.add('open')
-}
-function closeGH(){document.getElementById('gh-modal').classList.remove('open');ghGoal=null}
+function closeGH(){document.getElementById('gh-modal').classList.remove('open')}
 function showConfirm(msg,cb){
   document.getElementById('confirm-msg').textContent=msg;confirmCb=cb;
   document.getElementById('confirm-btn').onclick=()=>{closeConfirm();if(confirmCb)confirmCb()};
   document.getElementById('confirm-overlay').classList.add('open')
 }
 function closeConfirm(){document.getElementById('confirm-overlay').classList.remove('open');confirmCb=null}
-function checkConfig(){
-  const ok=data&&data.names&&data.names.person1&&data.names.person2;
-  const sub=document.getElementById('settings-names-sub');
-  if(ok)sub.textContent=data.names.person1+' y '+data.names.person2;
-  else sub.textContent='Sin configurar'
-}
+function checkConfig(){}
 
 // ===== RIPPLE =====
 document.addEventListener('click',function(e){
