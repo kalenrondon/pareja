@@ -1038,16 +1038,23 @@ let supabaseClient = null;
 try { if (window.supabase) supabaseClient = supabase.createClient(SB_URL, SB_KEY); } catch(e) {}
 
 async function fetchData(){
+  async function fromAPI(){
+    try{const r=await fetch('/api/data');if(!r.ok)throw Error();return mergeData(await r.json())}
+    catch(e){return null}
+  }
   if (supabaseClient) {
     try {
-      const { data: row, error } = await supabaseClient.from('finanzas').select('data').eq('key','main').single();
+      const result = await Promise.race([
+        supabaseClient.from('finanzas').select('data').eq('key','main').single(),
+        new Promise((_,reject) => setTimeout(() => reject(new Error('timeout')), 3000))
+      ]);
+      const { data: row, error } = result;
       if (error && error.code === 'PGRST116') return mergeData(JSON.parse(JSON.stringify(API_DEFAULTS)));
       if (error) throw error;
       return mergeData(row.data);
-    } catch(e) { console.error('Supabase fetch error:', e); }
+    } catch(e) { return fromAPI(); }
   }
-  try{const r=await fetch('/api/data');if(!r.ok)throw Error();return mergeData(await r.json())}
-  catch(e){return null}
+  return fromAPI();
 }
 
 function mergeData(d) {
@@ -1063,15 +1070,21 @@ function mergeData(d) {
   return d;
 }
 async function saveData(){
+  async function toAPI(){
+    try{const r=await fetch('/api/data',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});return r.ok}
+    catch(e){return false}
+  }
   if (supabaseClient) {
     try {
-      const { error } = await supabaseClient.from('finanzas').upsert({ key:'main', data, updated_at: new Date().toISOString() }, { onConflict: 'key' });
-      if (error) throw error;
+      const result = await Promise.race([
+        supabaseClient.from('finanzas').upsert({ key:'main', data, updated_at: new Date().toISOString() }, { onConflict: 'key' }),
+        new Promise((_,reject) => setTimeout(() => reject(new Error('timeout')), 3000))
+      ]);
+      if (result.error) throw result.error;
       return true;
-    } catch(e) { console.error('Supabase save error:', e); return false; }
+    } catch(e) { return toAPI(); }
   }
-  try{const r=await fetch('/api/data',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});return r.ok}
-  catch(e){return false}
+  return toAPI();
 }
 
 // ===== DATA HELPERS =====
