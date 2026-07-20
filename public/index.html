@@ -427,6 +427,14 @@ body.light .jar-body{background:rgba(0,0,0,0.03)}
         <div class="set-item"><div class="set-icon">👤</div><div class="set-body"><div class="set-title" id="s-name1">Persona 1</div><div class="set-sub">Sin nombre</div></div></div>
         <div class="set-item"><div class="set-icon">👤</div><div class="set-body"><div class="set-title" id="s-name2">Persona 2</div><div class="set-sub">Sin nombre</div></div></div>
         <div class="set-item"><div class="set-icon">🐣</div><div class="set-body"><div class="set-title">Nombre de la mascota</div><div class="set-sub" id="s-petname">Nexo</div></div><input class="set-inp" type="text" id="petname-inp" maxlength="20" onchange="savePetName()"></div>
+        <div class="set-item">
+          <div class="set-icon" id="pet-type-icon">🐉</div>
+          <div class="set-body">
+            <div class="set-title">Tipo de mascota</div>
+            <div class="set-sub" id="s-pettype">Dragón</div>
+          </div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap" id="pet-type-options"></div>
+        </div>
         <div class="set-item set-click" onclick="openNamesModal()"><div class="set-icon">✏️</div><div class="set-body"><div class="set-title">Editar nombres</div><div class="set-sub">Cambiar nombres de la pareja</div></div></div>
         <div class="set-item set-click" onclick="openStages()"><div class="set-icon">🏆</div><div class="set-body"><div class="set-title">Etapas</div><div class="set-sub">Ver evoluciones de la mascota</div></div></div>
         <div class="set-item set-click" onclick="toggleTheme()"><div class="set-icon">🌙</div><div class="set-body"><div class="set-title">Modo oscuro</div><div class="set-sub" id="s-theme">Alternar</div></div></div>
@@ -483,15 +491,22 @@ body.light .jar-body{background:rgba(0,0,0,0.03)}
 
 <script>
 // ===== CONSTANTS =====
+const PET_TYPES = {
+  dragon:{name:'Dragón',emoji:'🐉',evo:['🥚','🐣','🦎','🐉','🐲','🐉🔥','🐉🔥','🐉🔥']},
+  fox:{name:'Zorro',emoji:'🦊',evo:['🥚','🐣','🦊','🦊✨','🦊⭐','🦊👑','🦊👑','🦊👑']},
+  cat:{name:'Gato',emoji:'🐱',evo:['🥚','🐣','🐱','🐈','🦁','🐯','🐯','🐯']},
+  bunny:{name:'Conejo',emoji:'🐰',evo:['🥚','🐣','🐰','🐇','🐇✨','🐇🌙','🐇🌙','🐇🌙']},
+  dog:{name:'Perro',emoji:'🐶',evo:['🥚','🐣','🐶','🐕','🐕‍🦺','🐕👑','🐕👑','🐕👑']}
+};
 const STAGES = [
-  { minXp:0, emoji:'🥚', name:'Huevo', desc:'Un nuevo comienzo' },
-  { minXp:80, emoji:'🐣', name:'Cría', desc:'Aprendiendo a querer' },
-  { minXp:250, emoji:'🦊', name:'Travieso', desc:'Lleno de energía' },
-  { minXp:600, emoji:'🐱', name:'Compañero', desc:'Siempre a tu lado' },
-  { minXp:1500, emoji:'🦁', name:'Guardián', desc:'Fuerte y leal' },
-  { minXp:3500, emoji:'🐉', name:'Dragón', desc:'Amor que todo lo puede' },
-  { minXp:7000, emoji:'🦄', name:'Legendario', desc:'Una pareja única' },
-  { minXp:12000, emoji:'🌟', name:'Eterno', desc:'Su amor trasciende' },
+  { minXp:0, name:'Huevo', desc:'Un nuevo comienzo' },
+  { minXp:80, name:'Cría', desc:'Aprendiendo a querer' },
+  { minXp:250, name:'Travieso', desc:'Lleno de energía' },
+  { minXp:600, name:'Compañero', desc:'Siempre a tu lado' },
+  { minXp:1500, name:'Guardián', desc:'Fuerte y leal' },
+  { minXp:3500, name:'Dragón', desc:'Amor que todo lo puede' },
+  { minXp:7000, name:'Legendario', desc:'Una pareja única' },
+  { minXp:12000, name:'Eterno', desc:'Su amor trasciende' },
 ];
 const CATEGORIES = {
   income: ['salario','ventas','extra','regalo','otro'],
@@ -500,7 +515,7 @@ const CATEGORIES = {
 const CAT_ICONS = {salario:'💼',ventas:'📦',extra:'🎲',regalo:'🎁',otro:'📌',comida:'🍽️',transporte:'🚌',servicios:'💡',salud:'🏥',entretenimiento:'🎬',deuda:'📄'};
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const TAB_NAMES = {pet:'Mascota',dashboard:'Inicio',tx:'Movimientos',goals:'Metas',settings:'Ajustes'};
-const DEFAULTS = {names:{person1:'',person2:''},transactions:[],debts:[],goals:[],budgets:{},settings:{darkMode:false,goalDeadlineDay:15},xp:0,streak:0,lastCheckin:null,xpLog:[]};
+const DEFAULTS = {names:{person1:'',person2:''},transactions:[],debts:[],goals:[],budgets:{},settings:{darkMode:false,goalDeadlineDay:15,petType:'dragon'},xp:0,streak:0,lastCheckin:null,xpLog:[]};
 
 // ===== STATE =====
 let data=null,txType='income',selMonth=null,selYear=null,curTab='pet',confirmCb=null;
@@ -515,7 +530,8 @@ function catIcon(c){return CAT_ICONS[c]||'📌'}
 function mKey(y,m){return y+'-'+String(m+1).padStart(2,'0')}
 function rawVal(el){return parseInt((el.value||'').replace(/\./g,''))||0}
 function daysBetween(a,b){const da=new Date(a+'T12:00:00'),db=new Date(b+'T12:00:00');return Math.round((da-db)/(86400000))}
-function getStage(xp){let s=STAGES[0];for(const st of STAGES){if(xp>=st.minXp)s=st}return s}
+function getPetType(){return PET_TYPES[(data.settings&&data.settings.petType)||'dragon']||PET_TYPES.dragon}
+function getStage(xp){let i=0;for(const st of STAGES){if(xp>=st.minXp)i++}const s=STAGES[Math.min(i,STAGES.length-1)];const pt=getPetType();return{...s,emoji:(pt.evo[STAGES.indexOf(s)]||pt.emoji),idx:STAGES.indexOf(s)}}
 
 // ===== FORMAT INPUT =====
 function fmtInput(el){
@@ -548,7 +564,8 @@ function mergeData(d){
   if(!d)return JSON.parse(JSON.stringify(DEFAULTS));
   if(!d.xp)d.xp=0;if(!d.streak)d.streak=0;if(!d.lastCheckin)d.lastCheckin=null;if(!d.xpLog)d.xpLog=[];
   if(!d.debts)d.debts=[];if(!d.goals)d.goals=[];if(!d.budgets)d.budgets={};
-  if(!d.settings)d.settings={darkMode:false,goalDeadlineDay:15};
+  if(!d.settings)d.settings={darkMode:false,goalDeadlineDay:15,petType:'dragon'};
+  if(!d.settings.petType)d.settings.petType='dragon';
   if(!d.names)d.names={person1:'',person2:''};
   return d;
 }
@@ -782,6 +799,22 @@ function renderSettings(){
   document.getElementById('s-petname').textContent=s.petName||'Nexo';
   document.getElementById('petname-inp').value=s.petName||'';
   document.getElementById('s-theme').textContent=document.body.classList.contains('light')?'Claro':'Oscuro';
+  const pt=getPetType();
+  document.getElementById('s-pettype').textContent=pt.name;
+  document.getElementById('pet-type-icon').textContent=pt.emoji;
+  const cont=document.getElementById('pet-type-options');
+  cont.innerHTML=Object.entries(PET_TYPES).map(([k,v])=>{
+    const act=k===(s.petType||'dragon');
+    return`<button type="button" style="padding:4px 8px;border-radius:var(--radius-sm);font-size:0.75rem;font-weight:600;font-family:var(--font);cursor:pointer;background:${act?'var(--primary)':'var(--bg)'};color:${act?'white':'var(--text-secondary)'};border:1px solid ${act?'var(--primary)':'var(--border-light)'};transition:all 0.15s var(--ease)" onclick="setPetType('${k}')">${v.emoji}</button>`
+  }).join('');
+}
+async function setPetType(type){
+  if(!PET_TYPES[type])return;
+  if(!data.settings)data.settings={};
+  data.settings.petType=type;
+  const ok=await saveData();
+  if(ok){renderAll();showToast('Mascota cambiada: '+PET_TYPES[type].name+' '+PET_TYPES[type].emoji,'success')}
+  else showToast('Error','error');
 }
 
 // ===== SETTINGS =====
