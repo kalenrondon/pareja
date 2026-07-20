@@ -14,6 +14,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@0.487.0" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <title>Finanzas Compartidas</title>
 <style>
 /* ===== DESIGN TOKENS ===== */
@@ -1026,11 +1027,49 @@ function fmtInput(el){
 }
 
 // ===== API =====
+const API_DEFAULTS = {
+  names:{person1:'',person2:''},transactions:[],debts:[],
+  goals:[{id:1,name:'Prenda de vestir del mes',saved:0,target:500},{id:2,name:'Producto para la casa',saved:0,target:1000},{id:3,name:'Viaje',saved:0,target:5000},{id:4,name:'Ahorro extra / libre',saved:0,target:2000}],
+  goalContributions:{},budgets:{},settings:{darkMode:false,goalDeadlineDay:15}
+};
+const SB_URL = 'https://oqvkrbmufinvakvltxbm.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9xdnJrYm11ZmludmFrdmx0eGJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1MTQxMDQsImV4cCI6MjEwMDA5MDEwNH0.RTaZedeezN_9HlhVuE9Puwt6H1lF1NqpafZIhDMtLCI';
+let supabaseClient = null;
+try { if (window.supabase) supabaseClient = supabase.createClient(SB_URL, SB_KEY); } catch(e) {}
+
 async function fetchData(){
-  try{const r=await fetch('/api/data');if(!r.ok)throw Error();return await r.json()}
+  if (supabaseClient) {
+    try {
+      const { data: row, error } = await supabaseClient.from('finanzas').select('data').eq('key','main').single();
+      if (error && error.code === 'PGRST116') return mergeData(JSON.parse(JSON.stringify(API_DEFAULTS)));
+      if (error) throw error;
+      return mergeData(row.data);
+    } catch(e) { console.error('Supabase fetch error:', e); }
+  }
+  try{const r=await fetch('/api/data');if(!r.ok)throw Error();return mergeData(await r.json())}
   catch(e){return null}
 }
+
+function mergeData(d) {
+  if (!d) return JSON.parse(JSON.stringify(API_DEFAULTS));
+  const defaults = JSON.parse(JSON.stringify(API_DEFAULTS));
+  d.goals = defaults.goals.map((dg, i) => {
+    const existing = d.goals && d.goals[i];
+    return existing ? { ...dg, ...existing } : { ...dg };
+  });
+  if (!d.goalContributions) d.goalContributions = {};
+  if (!d.budgets) d.budgets = {};
+  if (!d.settings) d.settings = { darkMode: false, goalDeadlineDay: 15 };
+  return d;
+}
 async function saveData(){
+  if (supabaseClient) {
+    try {
+      const { error } = await supabaseClient.from('finanzas').upsert({ key:'main', data, updated_at: new Date().toISOString() }, { onConflict: 'key' });
+      if (error) throw error;
+      return true;
+    } catch(e) { console.error('Supabase save error:', e); return false; }
+  }
   try{const r=await fetch('/api/data',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});return r.ok}
   catch(e){return false}
 }
@@ -1360,8 +1399,14 @@ async function saveDeadline(){
 }
 async function resetAll(){
   showConfirm('¿Reiniciar todos los datos?',async()=>{
-    try{await fetch('/api/reset',{method:'POST'});data=await fetchData();const d=new Date();selMonth=d.getMonth();selYear=d.getFullYear();applyTheme();renderAll();closeSettings();showToast('Datos reiniciados','success')}
-    catch(e){showToast('Error','error')}
+    try{
+      data = JSON.parse(JSON.stringify(API_DEFAULTS));
+      const ok = await saveData();
+      if (ok) {
+        const d=new Date();selMonth=d.getMonth();selYear=d.getFullYear();
+        applyTheme();renderAll();closeSettings();showToast('Datos reiniciados','success');
+      } else throw Error();
+    } catch(e){showToast('Error','error')}
   })
 }
 
