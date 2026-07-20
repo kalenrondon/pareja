@@ -69,6 +69,27 @@ body{
 .bl-amount.pos{color:var(--income)}
 .bl-amount.neg{color:var(--expense)}
 
+/* DASHBOARD CHIPS */
+.dash-chip-row{display:flex;gap:6px;margin:4px 0 8px;flex-wrap:wrap}
+.dash-chip{padding:5px 10px;border-radius:20px;font-size:0.65rem;font-weight:600;background:var(--bg-card);border:1px solid var(--border-light);display:flex;align-items:center;gap:4px;white-space:nowrap}
+.dash-chip .dc-val{font-weight:700}
+.dash-chip.primary .dc-val{color:var(--primary)}
+.dash-chip.income .dc-val{color:var(--income)}
+.dash-chip.expense .dc-val{color:var(--expense)}
+.dash-chip.xp .dc-val{color:var(--xp)}
+.dash-chip.warning .dc-val{color:var(--warning)}
+
+/* DASHBOARD TX LIST */
+.dash-tx{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border-light)}
+.dash-tx:last-child{border-bottom:none}
+.dash-tx-icon{width:28px;height:28px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:0.7rem;flex-shrink:0}
+.dash-tx-body{flex:1;min-width:0}
+.dash-tx-cat{font-size:0.72rem;font-weight:600}
+.dash-tx-date{font-size:0.6rem;color:var(--text-tertiary);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dash-tx-amt{font-size:0.78rem;font-weight:700;flex-shrink:0}
+.dash-tx-more{padding:8px 0 2px;text-align:center;font-size:0.68rem;color:var(--primary);cursor:pointer;font-weight:500}
+.dash-tx-more:hover{text-decoration:underline}
+
 /* CARD */
 .card{background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:14px;margin-bottom:10px}
 .card-title{font-size:0.8125rem;font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
@@ -448,13 +469,10 @@ body.widget-mode .warmth-area{display:none}
         <button type="button" class="month-today" onclick="goToday()">Hoy</button>
       </div>
       <div class="balance-grid" id="balance-grid"></div>
+      <div class="dash-chip-row" id="dash-chips"></div>
       <div class="card">
-        <div class="card-title">Últimos movimientos</div>
+        <div class="card-title" style="margin-bottom:0">📋 Actividad reciente</div>
         <div id="dash-txs"></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Presupuestos</div>
-        <div id="dash-buds"></div>
       </div>
     </div>
 
@@ -950,17 +968,19 @@ function renderDashboard(){
   document.getElementById('balance-grid').innerHTML=
     '<div class="balance-card"><div class="bl-label">💰 Ingresos</div><div class="bl-amount income">'+fmt(inc)+'</div></div>'+
     '<div class="balance-card"><div class="bl-label">💸 Gastos</div><div class="bl-amount expense">'+fmt(exp)+'</div></div>'+
-    '<div class="balance-card"><div class="bl-label">📊 Disponible</div><div class="bl-amount '+(av>=0?'pos':'neg')+'">'+fmt(av)+'</div></div>';
-  const txs=txsOf(selYear,selMonth).slice(-10).reverse();
+    '<div class="balance-card"><div class="bl-label">📊 Balance</div><div class="bl-amount '+(av>=0?'pos':'neg')+'">'+fmt(av)+'</div></div>';
+  const tGoal=(data.goals||[]).reduce((s,g)=>s+Number(g.saved),0);
+  const tDebt=(data.debts||[]).reduce((s,d)=>s+(d.total-d.paid),0);
+  const xpMo=data.xpLog.filter(l=>l.date.startsWith(selYear+'-'+String(selMonth+1).padStart(2,'0'))).reduce((s,l)=>s+l.amount,0);
+  document.getElementById('dash-chips').innerHTML=
+    '<div class="dash-chip primary"><span>🏦</span>Metas: <span class="dc-val">'+fmt(tGoal)+'</span></div>'+
+    (tDebt>0?'<div class="dash-chip expense"><span>📄</span>Deudas: <span class="dc-val">'+fmt(tDebt)+'</span></div>':'')+
+    '<div class="dash-chip xp"><span>⭐</span>XP este mes: <span class="dc-val">'+(xpMo>=0?'+':'')+xpMo+'</span></div>';
+  const txs=txsOf(selYear,selMonth).slice(-5).reverse();
   document.getElementById('dash-txs').innerHTML=txs.length?txs.map(t=>{
-    const ic=t.type==='income'?'💰':'💸';
-    return`<div class="tx-item"><div class="tx-icon ${t.type}">${ic}</div><div class="tx-body"><div class="tx-cat">${catIcon(t.category)} ${esc(t.category)}${t.note?' · '+esc(t.note):''}</div></div><div class="tx-amount ${t.type}">${t.type==='income'?'+':'-'}${fmt(t.amount)}</div></div>`
-  }).join(''):'<div class="empty"><div class="empty-icon">📭</div><div class="empty-title">Sin movimientos</div><div class="empty-desc">Este mes no hay registros</div></div>';
-  const bd=getBudSp(selYear,selMonth);
-  document.getElementById('dash-buds').innerHTML=bd.filter(b=>b.lim>0).length?bd.filter(b=>b.lim>0).map(b=>{
-    const cls=b.pct>=100?'over':b.pct>=80?'warn':'ok';
-    return`<div class="budget-item"><span class="budget-cat">${catIcon(b.cat)} ${esc(b.cat)}</span><div class="budget-bar"><div class="fill ${cls}" style="width:${Math.min(b.pct,100)}%"></div></div><span class="budget-val">${fmt(b.sp)}</span></div>`
-  }).join(''):'<div class="empty" style="padding:8px"><div class="empty-desc">Configure presupuestos en Metas</div></div>';
+    const ic=t.type==='income'?'<span style="color:var(--income)">+</span>':'<span style="color:var(--expense)">−</span>';
+    return'<div class="dash-tx"><div class="dash-tx-icon">'+catIcon(t.category)+'</div><div class="dash-tx-body"><div class="dash-tx-cat">'+esc(t.category)+'</div><div class="dash-tx-date">'+fmtDate(t.date)+' · '+(t.who==='person1'?(data.names&&data.names.person1)||'P1':t.who==='person2'?(data.names&&data.names.person2)||'P2':'Ambos')+''+(t.note?' · '+esc(t.note):'')+'</div></div><div class="dash-tx-amt">'+ic+' '+fmt(t.amount)+'</div></div>'
+  }).join('')+'<div class="dash-tx-more" onclick="navigate(\'tx\')">Ver todos los movimientos →</div>':'<div class="empty"><div class="empty-icon">📭</div><div class="empty-title">Sin movimientos</div><div class="empty-desc">Agregue su primer movimiento desde la pestaña Movimientos</div></div>';
 }
 function renderTxs(){
   const list=document.getElementById('tx-list'),txs=txsOf(selYear,selMonth).slice().reverse();
