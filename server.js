@@ -6,11 +6,11 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const DATA_FILE = path.join(__dirname, 'data.json');
-const MONGODB_URI = process.env.MONGODB_URI;
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_KEY;
 
-let mongoose = null;
-let DataModel = null;
-let useMongo = false;
+let supabase = null;
+let useSupabase = false;
 
 const defaultData = {
   names: { person1: '', person2: '' },
@@ -39,16 +39,14 @@ function mergeGoals(data) {
   return data;
 }
 
-// ---- JSON file backend ----
+// ---- JSON file fallback ----
 function loadJSON() {
   try {
     if (fs.existsSync(DATA_FILE)) {
       const raw = fs.readFileSync(DATA_FILE, 'utf8');
       return mergeGoals(JSON.parse(raw));
     }
-  } catch (e) {
-    console.error('Error loading JSON:', e);
-  }
+  } catch (e) { console.error('Error loading JSON:', e); }
   return JSON.parse(JSON.stringify(defaultData));
 }
 
@@ -56,39 +54,31 @@ function saveJSON(data) {
   fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
 }
 
-if (MONGODB_URI) {
+// ---- Supabase backend ----
+if (SUPABASE_URL && SUPABASE_KEY) {
   try {
-    mongoose = require('mongoose');
-    const conn = mongoose.createConnection(MONGODB_URI);
-    const schema = new mongoose.Schema({}, { strict: false, timestamps: true, collection: 'finanzas' });
-    DataModel = conn.model('FinanceData', schema);
-    conn.asPromise().then(() => {
-      useMongo = true;
-      console.log('Connected to MongoDB');
-    }).catch(err => {
-      console.error('MongoDB connection error, falling back to JSON:', err.message);
-    });
+    const { createClient } = require('@supabase/supabase-js');
+    supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    useSupabase = true;
+    console.log('Supabase client initialized');
   } catch (e) {
-    console.error('Mongoose load error, falling back to JSON:', e.message);
+    console.error('Supabase init error, falling back to JSON:', e.message);
   }
 }
 
 async function loadData() {
-  if (useMongo && DataModel) {
+  if (useSupabase && supabase) {
     try {
-      let doc = await DataModel.findOne({ key: 'main' }).lean();
-      if (!doc) {
-        doc = { ...defaultData, key: 'main' };
-        await DataModel.create(doc);
+      const { data, error } = await supabase.from('finanzas').select('data').eq('key', 'main').single();
+      if (error && error.code === 'PGRST116') {
+        const doc = JSON.parse(JSON.stringify(defaultData));
+        await supabase.from('finanzas').insert({ key: 'main', data: doc });
+        return doc;
       }
-      delete doc._id;
-      delete doc.__v;
-      delete doc.createdAt;
-      delete doc.updatedAt;
-      delete doc.key;
-      return mergeGoals(doc);
+      if (error) throw error;
+      return mergeGoals(data.data);
     } catch (e) {
-      console.error('Mongo load error:', e);
+      console.error('Supabase load error:', e.message);
       return loadJSON();
     }
   }
@@ -96,19 +86,20 @@ async function loadData() {
 }
 
 async function saveData(data) {
-  if (useMongo && DataModel) {
+  if (useSupabase && supabase) {
     try {
-      const toSave = { ...data, key: 'main' };
-      await DataModel.updateOne({ key: 'main' }, { $set: toSave }, { upsert: true });
+      const toSave = { key: 'main', data, updated_at: new Date().toISOString() };
+      const { error } = await supabase.from('finanzas').upsert(toSave, { onConflict: 'key' });
+      if (error) throw error;
       return;
     } catch (e) {
-      console.error('Mongo save error, falling back to JSON:', e);
+      console.error('Supabase save error, falling back to JSON:', e.message);
     }
   }
   saveJSON(data);
 }
 
-if (!useMongo && !fs.existsSync(DATA_FILE)) {
+if (!useSupabase && !fs.existsSync(DATA_FILE)) {
   saveJSON(defaultData);
 }
 
@@ -154,7 +145,6 @@ app.get('*', (req, res) => {
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Finanzas app running at http://localhost:${PORT}`);
-  if (useMongo) console.log('Storage: MongoDB');
-  else console.log('Storage: JSON file');
-  console.log('Set MONGODB_URI env var to use MongoDB');
+  console.log(useSupabase ? 'Storage: Supabase' : 'Storage: JSON file');
+  if (!useSupabase) console.log('Set SUPABASE_URL and SUPABASE_KEY env vars to use Supabase');
 });
